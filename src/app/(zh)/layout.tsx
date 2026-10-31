@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import './globals.css';
+import '../globals.css';
 export const metadata: Metadata = {
   title: 'REMO China Connect | 中韩企业合作',
   description: '探索 FINEFIT 健身科技、机器人训练数据需求与韩国市场渠道、SI 及维护合作。',

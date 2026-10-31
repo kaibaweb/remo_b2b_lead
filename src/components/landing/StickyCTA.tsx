@@ -1,9 +1,10 @@
 'use client';
+import { useTranslation } from '@/components/i18n/LocaleProvider';
 
 import { useState, useEffect } from 'react';
 import { trackEvent } from '@/lib/analytics';
 
-export function StickyCTA() {
+export function StickyCTA() { const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [isFormInView, setIsFormInView] = useState(false);
 
@@ -42,8 +43,7 @@ export function StickyCTA() {
         className="w-full rounded-2xl bg-billy-yellow py-4 text-[17px] font-bold text-text-primary
                    shadow-xl shadow-billy-yellow/30 active:scale-[0.98] transition-all"
       >
-        合作咨询 · 留下需求 →
-      </button>
+        {t("合作咨询 · 留下需求 →")}</button>
     </div>
   );
 }

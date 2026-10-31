@@ -30,6 +30,14 @@ npm start
 
 Node.js 24를 사용합니다. 환경변수가 없어도 소개 페이지 빌드는 가능하며, 관리자·문의 접수는 별도 설정이 필요합니다. `INBOUND_ENABLED=false`가 기본이며, 미설정 상태의 문의를 성공 처리하지 않습니다.
 
+### 한국어 · 중국어 페이지
+
+- 중국어: `/`, `/contact`, `/privacy` (기존 주소 유지)
+- 한국어: `/ko`, `/ko/contact`, `/ko/privacy`
+- 상단의 `中文 / 한국어`로 같은 페이지의 언어를 전환합니다. 쿼리 매개변수와 해시를 유지하므로 협력 분야 선택·캠페인 유입 정보가 보존됩니다.
+- 화면 구조와 문의 API는 공유하며, 한국어 문구는 `src/lib/ko.json`에서 관리합니다. 한국어 문의 검증과 오류 안내도 제공합니다.
+- 언어별 루트 레이아웃에서 HTML 언어와 검색·공유 메타데이터를 설정합니다. 관리자 URL과 문의 수집·동의 정책은 동일합니다.
+
 ### Vercel에 가져오기
 
 이번 작업은 **GitHub에 소스와 설정을 푸시**하는 범위입니다. Vercel 직접 배포·프로젝트 생성은 하지 않았습니다. 실제 접속 URL은 사용자가 가져오기·배포 후 확인해야 합니다.
@@ -44,7 +52,7 @@ Node.js 24를 사용합니다. 환경변수가 없어도 소개 페이지 빌드
 | Build Command | `npm run build` |
 | Output Directory | 기본값 — 별도 지정하지 않음 |
 | 배포 설정 | [`vercel.json`](vercel.json) |
-| 랜딩 | [`src/app/page.tsx`](src/app/page.tsx) |
+| 랜딩 | [`src/components/landing/LandingPage.tsx`](src/components/landing/LandingPage.tsx) |
 | 문의·개인정보 | `/contact`, `/privacy` |
 | 관리자 | `/admin/login` → `/admin` |
 
