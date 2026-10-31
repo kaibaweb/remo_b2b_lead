@@ -1,0 +1,77 @@
+{
+  "campaign": "remo-china-2026",
+  "sender_name": "REMO Business Development",
+  "sender_email": "",
+  "sender_address": "",
+  "landing_url": "",
+  "wechat_id": "",
+  "max_jobs": 20,
+  "max_search_requests": 3,
+  "max_daily_sends": 10,
+  "evidence_max_days": 30,
+  "min_score": 50,
+  "live_enabled": false,
+  "tracks": {
+    "finefit": {
+      "label": "FINEFIT Mirror 판매·유통",
+      "terms": [
+        "fitness",
+        "gym",
+        "rehabilitation",
+        "健身",
+        "康复",
+        "体态",
+        "运动"
+      ],
+      "queries": [
+        "中国 连锁健身 集团 总部 商务合作",
+        "中国 康复 运动健康 设备 经销商",
+        "新加坡 健身 连锁 采购"
+      ],
+      "offer_zh": "探讨 FINEFIT Mirror 在贵司业务中的应用或渠道合作可能性",
+      "cta_zh": "是否方便安排一次15分钟的线上交流？",
+      "subject_zh": "FINEFIT Mirror 应用与渠道合作"
+    },
+    "physical_ai_data": {
+      "label": "Physical AI 데이터 수요",
+      "terms": [
+        "humanoid",
+        "robot",
+        "具身",
+        "机器人",
+        "人形",
+        "训练数据",
+        "teleoperation"
+      ],
+      "queries": [
+        "中国 人形机器人 数据采集 商务合作",
+        "具身智能 训练数据 遥操作 企业 联系",
+        "humanoid robotics training data China partnerships"
+      ],
+      "offer_zh": "了解贵司对机器人训练数据、失败恢复及人类动作信号的实际需求，探讨合作可行性",
+      "cta_zh": "是否愿意用15分钟交流目前最缺少的数据类型？",
+      "subject_zh": "机器人训练数据需求交流"
+    },
+    "korea_entry": {
+      "label": "한국 진출·총판·SI·유지보수",
+      "terms": [
+        "robot",
+        "机器人",
+        "humanoid",
+        "international",
+        "distributor",
+        "海外",
+        "渠道",
+        "韩国"
+      ],
+      "queries": [
+        "机器人 企业 韩国 代理商 合作",
+        "中国 机器人 海外 渠道 合作 联系",
+        "China robotics Korea distributor system integration partner"
+      ],
+      "offer_zh": "探讨韩国市场进入、渠道对接、系统集成及后续维护的合作需求与分工",
+      "cta_zh": "贵司是否正在评估韩国市场或寻找本地合作伙伴？",
+      "subject_zh": "韩国市场渠道与技术合作"
+    }
+  }
+}

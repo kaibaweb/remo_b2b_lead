@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+config.local.json
+.state/
+reports/
+private/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+dist/
+build/

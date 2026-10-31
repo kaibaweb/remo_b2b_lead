@@ -1,0 +1,9 @@
+{
+  "provider_id": "FORMAT-ONLY-actual-mail-message-id",
+  "opportunity_id": 1,
+  "contact_id": 1,
+  "sender_email": "buyer@demo.example.org",
+  "outcome": "meeting",
+  "note": "FORMAT ONLY — replace with actual reply summary",
+  "received_at": "2026-10-31T00:00:00+00:00"
+}

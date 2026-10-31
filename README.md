@@ -127,4 +127,3 @@ python -m compileall -q remo_lead
 ```
 
 CI는 Python 3.11·3.12·3.13에서 오프라인 검증을 수행합니다. 샘플 입력은 `examples/`, 기획 출처와 미확정 사항은 [docs/DECISIONS.md](docs/DECISIONS.md), 상세 운영은 [docs/OPERATIONS.md](docs/OPERATIONS.md)에 있습니다.
-

@@ -1,0 +1,16 @@
+[
+  {
+    "company": "DEMO Robotics — 가상회사, 운영 import 금지",
+    "website": "https://demo.example.org",
+    "country": "CN",
+    "tracks": ["physical_ai_data", "korea_entry"],
+    "evidence": [
+      {
+        "url": "https://demo.example.org/contact",
+        "excerpt": "DEMO humanoid robot 机器人 international 渠道 buyer@demo.example.org",
+        "observed_at": "2026-10-31T00:00:00+00:00"
+      }
+    ],
+    "contacts": [{"email": "buyer@demo.example.org", "source_url": "https://demo.example.org/contact"}]
+  }
+]
