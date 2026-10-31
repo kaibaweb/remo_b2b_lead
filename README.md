@@ -2,11 +2,72 @@
 
 공식 저장소: [kaibaweb/remo_b2b_lead](https://github.com/kaibaweb/remo_b2b_lead)
 
-구현 코드: [`codex/china-lead-agent-v1`](https://github.com/kaibaweb/remo_b2b_lead/tree/codex/china-lead-agent-v1) 작업 브랜치에서 확인하고 실행할 수 있습니다.
+웹 랜딩·문의 관리자와 Python 리드봇 코드는 모두 이 저장소의 `main`에서 관리합니다.
 
 **중국 기업을 찾고, 연락처와 사업 수요를 검증해 중국어 제안과 상담·미팅으로 연결하는 B2B 영업 리드봇입니다.**
 
 기업 검색부터 출처 확인, 중복 제거, 사업별 분류, 제안 초안 작성, 회신 기록까지 하나의 흐름으로 관리합니다. 회신 성과를 다음 검색의 우선순위에 반영해 유효한 리드를 누적하는 것이 목표입니다.
+
+## 랜딩페이지 · malang.best 구조 재사용
+
+**malang.best의 Next.js 랜딩과 문의·관리 시스템을 재사용하고, 공개 콘텐츠를 REMO 중국 B2B용으로 교체했습니다.** 기존 말랑이 상품·고객 사례·이미지·카카오톡 링크·연락처·실제 고객 데이터·비밀키는 가져오지 않았습니다.
+
+- 유지한 시스템: 섹션형 랜딩, 고정 CTA, 문의 폼, UTM 기록, Firebase 관리자 로그인, 문의 상태·메모·CSV, 영상·확인 메일 템플릿 관리, Resend 확인 메일·Telegram 알림.
+- 바꾼 콘텐츠: 중국어 브랜드·소개·협력 방향·문의·개인정보 안내. FINEFIT, Physical AI 데이터 수요, 한국 진출 지원을 구분합니다.
+- 리모 전용 Firestore: `remo_inbound_leads` / `remo_site_settings`. 기존 말랑 컬렉션과 분리했습니다.
+- 보완: 서버의 동의·입력 검증, 미설정 관리자 접근 차단, 알림 실패에도 문의 보존, 실제 발송 여부와 접수 성공 구분, CSV 수식 방어.
+
+### 실행
+
+```bash
+npm ci
+cp .env.example .env.local
+npm run dev
+# 프로덕션 빌드
+npm run build
+npm start
+```
+
+Node.js 24를 사용합니다. 환경변수가 없어도 소개 페이지 빌드는 가능하며, 관리자·문의 접수는 별도 설정이 필요합니다. `INBOUND_ENABLED=false`가 기본이며, 미설정 상태의 문의를 성공 처리하지 않습니다.
+
+### Vercel에 가져오기
+
+이번 작업은 **GitHub에 소스와 설정을 푸시**하는 범위입니다. Vercel 직접 배포·프로젝트 생성은 하지 않았습니다. 실제 접속 URL은 사용자가 가져오기·배포 후 확인해야 합니다.
+
+| 항목 | 설정 |
+|---|---|
+| 저장소 | `kaibaweb/remo_b2b_lead` |
+| Production Branch | `main` |
+| Root Directory | 저장소 루트 |
+| Framework Preset | Next.js |
+| Install Command | `npm ci` |
+| Build Command | `npm run build` |
+| Output Directory | 기본값 — 별도 지정하지 않음 |
+| 배포 설정 | [`vercel.json`](vercel.json) |
+| 랜딩 | [`src/app/page.tsx`](src/app/page.tsx) |
+| 문의·개인정보 | `/contact`, `/privacy` |
+| 관리자 | `/admin/login` → `/admin` |
+
+Vercel에서 **Add New → Project → 저장소 Import → Deploy** 순서로 진행합니다. 저장소가 목록에 없다면 Vercel GitHub 앱에 해당 저장소 접근을 허용합니다.
+
+### 문의·관리자 환경변수
+
+`.env.example`의 빈 항목에 리모 운영 값을 설정합니다. Vercel에는 Project Settings → Environment Variables에서 등록하고 재배포합니다. **말랑 계정의 키를 자동 복제하거나 실제 발송을 실행하지 않습니다.**
+
+| 기능 | 필요한 환경변수 |
+|---|---|
+| 문의 저장 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` |
+| 관리자 로그인 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `ADMIN_EMAIL` |
+| 접수 확인 메일 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL` |
+| 담당자 Telegram 알림 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| 선택 공개 연락처 | `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_WECHAT_ID` |
+| 운영 접수 활성화 | Firebase·개인정보 안내를 확인한 뒤 `INBOUND_ENABLED=true` |
+
+관리자는 Firebase Authentication의 Email/Password 사용자를 생성하고 이메일을 인증한 뒤 `ADMIN_EMAIL`과 일치시켜야 합니다. 클라이언트에서 Firestore로 직접 접근하지 않으므로 Firestore Rules는 클라이언트 읽기·쓰기를 허용할 필요가 없습니다. Firebase Authorized domains에 실제 Vercel 도메인을 등록합니다. 설정 변경 후 재배포해야 공개 환경변수도 반영됩니다.
+
+문의 데이터가 먼저 저장된 뒤 알림을 실행합니다. 알림 미설정·실패 시에도 접수된 문의는 보존하고 알림 상태를 기록합니다. 접수 동의는 해당 문의 응대용이며 아웃바운드 광고 동의로 전환하지 않습니다. Python 아웃바운드 DB와 웹 인바운드 CRM은 별도이며 자동 동기화하지 않습니다.
+
+검증: `npm run build`, `npm run lint`, `npm run test:web`. 실제 Firebase·메일·Telegram 원격 연동은 환경변수 설정 후 별도로 확인해야 합니다.
 
 ## 주요 기능
 
@@ -28,14 +89,14 @@ Codex가 조사·판단을 맡고, Python 실행기가 데이터 저장과 실�
 | `physical_ai_data` | 휴머노이드·구체화 AI·로봇 기업 | 훈련 데이터, 실패·복구, 사람 동작 신호 |
 | `korea_entry` | 한국 진출을 검토하는 중국 로봇 기업 | 총판·유통망·SI·유지보수 파트너 |
 
-같은 회사라도 사업 기회는 별도로 저장합니다. 캠페인 내 동일 수신자 발송은 트랙을 넘어 한 번만 허용합니다. SNS 운영 대신 직접 리드 소싱을 중심으로 하며, 블로그 자동 발행과 중국어 웹사이트는 이 저장소의 현재 구현 범위에 포함되지 않습니다.
+같은 회사라도 사업 기회는 별도로 저장합니다. 캠페인 내 동일 수신자 발송은 트랙을 넘어 한 번만 허용합니다. SNS 운영 대신 직접 리드 소싱을 중심으로 하며, 중국어 랜딩과 문의 CRM을 포함하며, 블로그 자동 발행은 현재 구현 범위에 포함되지 않습니다.
 
 ## 바로 실행
 
 새로 내려받을 때:
 
 ```bash
-git clone --branch codex/china-lead-agent-v1 https://github.com/kaibaweb/remo_b2b_lead.git
+git clone https://github.com/kaibaweb/remo_b2b_lead.git
 cd remo_b2b_lead
 ```
 
@@ -127,4 +188,3 @@ python -m compileall -q remo_lead
 ```
 
 CI는 Python 3.11·3.12·3.13에서 오프라인 검증을 수행합니다. 샘플 입력은 `examples/`, 기획 출처와 미확정 사항은 [docs/DECISIONS.md](docs/DECISIONS.md), 상세 운영은 [docs/OPERATIONS.md](docs/OPERATIONS.md)에 있습니다.
-

@@ -1,0 +1,9 @@
+{
+  "contact_id": 1,
+  "sender_email": "operator@example.org",
+  "basis": "explicit_consent",
+  "evidence": "FORMAT ONLY — replace with a genuine consent record identifier",
+  "recorded_by": "actual-operator",
+  "obtained_at": "2026-10-31T00:00:00+00:00",
+  "expires_at": "2026-11-07T00:00:00+00:00"
+}

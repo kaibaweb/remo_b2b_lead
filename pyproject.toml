@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "remo-b2b-lead"
+version = "0.1.0"
+description = "Evidence-first China B2B sourcing and outreach harness for REMO"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/kaibaweb/remo_b2b_lead"
+
+[project.scripts]
+remo-lead = "remo_lead.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["remo_lead*"]
