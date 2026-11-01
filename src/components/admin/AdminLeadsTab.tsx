@@ -100,11 +100,10 @@ export function AdminLeadsTab({ user }: Props) {
             <button
               key={key}
               onClick={() => setStatusFilter(key === statusFilter ? 'all' : key)}
-              className={`rounded-2xl p-4 text-center border-2 transition-all ${
-                statusFilter === key
+              className={`rounded-2xl p-4 text-center border-2 transition-all ${statusFilter === key
                   ? 'border-blue-500 bg-blue-950/40 text-white'
                   : 'border-slate-800 bg-slate-900/80 hover:border-slate-700 text-slate-300'
-              }`}
+                }`}
             >
               <span className="text-[24px] font-bold block" style={{ color }}>
                 {counts[key] || 0}
@@ -176,9 +175,8 @@ export function AdminLeadsTab({ user }: Props) {
                       setSelectedLead(lead);
                       setMemo(lead.memo || '');
                     }}
-                    className={`hover:bg-slate-800/40 cursor-pointer transition-colors ${
-                      selectedLead?.id === lead.id ? 'bg-blue-950/30' : ''
-                    }`}
+                    className={`hover:bg-slate-800/40 cursor-pointer transition-colors ${selectedLead?.id === lead.id ? 'bg-blue-950/30' : ''
+                      }`}
                   >
                     <td className="p-3 text-slate-400 font-mono">
                       {lead.createdAt ? format(new Date(lead.createdAt), 'yy.MM.dd HH:mm', { locale: ko }) : '-'}
@@ -260,11 +258,10 @@ export function AdminLeadsTab({ user }: Props) {
                     <button
                       key={stKey}
                       onClick={() => updateLead(selectedLead.id, { status: stKey })}
-                      className={`px-3 py-1 rounded-xl text-xs font-medium border transition-colors ${
-                        selectedLead.status === stKey
+                      className={`px-3 py-1 rounded-xl text-xs font-medium border transition-colors ${selectedLead.status === stKey
                           ? 'bg-blue-600 border-blue-500 text-white'
                           : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {label}
                     </button>

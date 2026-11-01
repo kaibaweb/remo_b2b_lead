@@ -20,3 +20,4 @@ next-env.d.ts
 *firebase-adminsdk*.json
 *-adminsdk-*.json
 service-account*.json
+out/

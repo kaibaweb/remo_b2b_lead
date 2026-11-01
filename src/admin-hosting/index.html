@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REMO B2B Admin Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Pretendard', system-ui, -apple-system, sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. LOADING SCREEN -->
+  <!-- ========================================================================= -->
+  <div id="screen-loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#070b14]">
+    <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="text-sm text-slate-400 font-medium">관리자 시스템 로딩 중...</p>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. LOGIN SCREEN -->
+  <!-- ========================================================================= -->
+  <div id="screen-login" class="hidden min-h-screen flex items-center justify-center p-5 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none"></div>
+    
+    <div class="w-full max-w-[420px] relative z-10">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 mb-4 shadow-lg shadow-blue-500/10">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">REMO B2B 관리자</h1>
+        <p class="text-xs text-slate-400 mt-1">Firebase Hosting 보안 격리 콘솔</p>
+      </div>
+
+      <form id="form-login" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-7 shadow-2xl backdrop-blur-xl space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">관리자 이메일</label>
+          <input type="email" id="login-email" value="gitkaiba@gmail.com" required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition-colors" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">비밀번호</label>
+          <input type="password" id="login-password" value="123456789" required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition-colors" />
+        </div>
+
+        <div id="login-error" class="hidden p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-red-300 text-xs"></div>
+
+        <button type="submit" id="btn-login-submit"
+          class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+          <span>로그인</span>
+        </button>
+        
+        <div class="text-center pt-2">
+          <span class="text-[11px] text-slate-500">Google Firebase 인증으로 데이터가 안전하게 보호됩니다.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. DASHBOARD MAIN APP -->
+  <!-- ========================================================================= -->
+  <div id="screen-dashboard" class="hidden flex-1 flex flex-col">
+    <!-- Top Header -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-[1560px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-500/20">
+            R
+          </div>
+          <div>
+            <h1 class="text-sm font-bold text-white leading-none">REMO China Connect</h1>
+            <span class="text-[10px] text-slate-400">Firebase Hosting 격리 어드민</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+          <!-- Refresh Button (Zero Cost: Single shot query) -->
+          <button id="btn-global-refresh" title="데이터 새로고침 (단발 쿼리/비용 0원)"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-all">
+            <svg id="icon-refresh" class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span class="hidden sm:inline">새로고침</span>
+          </button>
+
+          <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
+          
+          <span id="user-email-badge" class="text-slate-400 font-mono text-xs hidden md:inline"></span>
+
+          <button id="btn-logout"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span>로그아웃</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab Bar -->
+    <div class="border-b border-slate-800 bg-slate-950/40">
+      <div class="max-w-[1560px] mx-auto px-4 md:px-8 flex gap-1 sm:gap-2 overflow-x-auto">
+        <button data-tab="leads" class="tab-btn active inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-blue-500 text-blue-400 bg-blue-950/20">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span>인바운드 리드</span>
+          <span id="tab-lead-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-blue-600/30 text-blue-300">0</span>
+        </button>
+
+        <button data-tab="notes" class="tab-btn inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>회의록 (Notes)</span>
+          <span id="tab-note-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-400">0</span>
+        </button>
+
+        <button data-tab="analytics" class="tab-btn inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>PostHog & 통계</span>
+        </button>
+
+        <button data-tab="email" class="tab-btn inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>안내 메일 서식</span>
+        </button>
+
+        <button data-tab="shorts" class="tab-btn inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span>유튜브 숏츠</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-[1560px] w-full mx-auto p-4 md:p-8">
+
+      <!-- =================================================================== -->
+      <!-- TAB 1: INBOUND LEADS -->
+      <!-- =================================================================== -->
+      <section id="panel-leads" class="tab-panel space-y-6">
+        <!-- Filter Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+          <div class="flex flex-wrap items-center gap-3 flex-1">
+            <div class="relative min-w-[220px]">
+              <input type="text" id="lead-search" placeholder="회사명, 이름, 이메일, 위챗 검색..."
+                class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <select id="lead-status-filter"
+              class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+              <option value="all">전체 상태</option>
+              <option value="new">신규 (new)</option>
+              <option value="in_review">검토중 (in_review)</option>
+              <option value="meeting_scheduled">미팅예정 (meeting_scheduled)</option>
+              <option value="rejected">거절 (rejected)</option>
+              <option value="closed">완료 (closed)</option>
+            </select>
+          </div>
+
+          <button id="btn-export-csv"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>CSV 다운로드</span>
+          </button>
+        </div>
+
+        <!-- Leads List -->
+        <div id="leads-container" class="space-y-3">
+          <div class="p-8 text-center text-slate-500 text-xs">리드 목록을 불러오는 중...</div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 2: MEETING NOTES (2-PANEL CRUD) -->
+      <!-- =================================================================== -->
+      <section id="panel-notes" class="tab-panel hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[640px]">
+          <!-- Left Panel: Notes List (4 cols) -->
+          <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-sm font-bold text-white">회의록 목록</h2>
+              <button id="btn-new-note"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>새 회의록</span>
+              </button>
+            </div>
+
+            <div class="relative">
+              <input type="text" id="note-search" placeholder="회의록 제목, 내용, 태그 검색..."
+                class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <div id="notes-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[580px]">
+              <div class="p-8 text-center text-slate-500 text-xs">회의록을 불러오는 중...</div>
+            </div>
+          </div>
+
+          <!-- Right Panel: View / Edit (7 cols) -->
+          <div class="lg:col-span-7 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col">
+            <!-- View Mode -->
+            <div id="note-view-pane" class="flex-1 flex flex-col space-y-4">
+              <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                  <h3 id="view-note-title" class="text-lg font-black text-white">회의록을 선택해주세요</h3>
+                  <div class="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                    <span id="view-note-date"></span>
+                    <span id="view-note-author" class="font-mono text-[11px] text-slate-500"></span>
+                  </div>
+                  <div id="view-note-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+
+                <div id="view-note-actions" class="hidden flex items-center gap-2">
+                  <button id="btn-edit-note"
+                    class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors">수정</button>
+                  <button id="btn-delete-note"
+                    class="px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-300 text-xs font-semibold border border-red-800/50 transition-colors">삭제</button>
+                </div>
+              </div>
+
+              <!-- Content with Clickable URLs -->
+              <div id="view-note-content" class="flex-1 overflow-y-auto text-sm text-slate-300 whitespace-pre-wrap leading-relaxed py-2">
+                왼쪽 목록에서 회의록을 선택하거나 [새 회의록] 버튼을 눌러 작성하세요.
+              </div>
+
+              <!-- Attachments Display -->
+              <div id="view-note-attachments-section" class="hidden border-t border-slate-800 pt-4">
+                <h4 class="text-xs font-semibold text-slate-400 mb-2">첨부파일 (<span id="view-attachment-count">0</span>)</h4>
+                <div id="view-note-attachments-list" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <form id="note-edit-pane" class="hidden flex-1 flex flex-col space-y-4">
+              <input type="hidden" id="edit-note-id" />
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">회의록 제목</label>
+                  <input type="text" id="edit-note-title" required placeholder="예: 심천 Physical AI 파트너 1차 미팅"
+                    class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-400 mb-1">회의 일자</label>
+                  <input type="date" id="edit-note-date" required
+                    class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">태그 (쉼표로 구분)</label>
+                <input type="text" id="edit-note-tags" placeholder="중국출장, 하드웨어, 파트너십"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500" />
+              </div>
+
+              <div class="flex-1 flex flex-col min-h-[220px]">
+                <label class="block text-xs font-semibold text-slate-400 mb-1">회의 내용 (URL 링크는 자동 연결됩니다)</label>
+                <textarea id="edit-note-content" rows="10" required placeholder="회의 안건, 결정 사항, 후속 조치 내용..."
+                  class="flex-1 w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 resize-none font-mono"></textarea>
+              </div>
+
+              <!-- Attachment Upload (10MB limit) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">파일 첨부 (파일당 최대 10MB 제한)</label>
+                <input type="file" id="edit-file-input" multiple
+                  class="block w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-300 hover:file:bg-blue-600/30 cursor-pointer" />
+                <div id="edit-attachments-preview" class="flex flex-wrap gap-2 mt-2"></div>
+              </div>
+
+              <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                <button type="button" id="btn-cancel-edit"
+                  class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors">취소</button>
+                <button type="submit" id="btn-save-note"
+                  class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20">저장하기</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: POSTHOG & ANALYTICS -->
+      <!-- =================================================================== -->
+      <section id="panel-analytics" class="tab-panel hidden space-y-6">
+        <!-- Top Banner with PostHog Link -->
+        <div class="bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-purple-950/20 border border-blue-900/40 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">PROJECT 702137</span>
+            <h2 class="text-lg font-black text-white mt-2">PostHog 실시간 유입 분석 & 리포트</h2>
+            <p class="text-xs text-slate-400 mt-1">Google Workspace GAS 아웃바운드 및 중국 현지 트래픽 실시간 모니터링</p>
+          </div>
+
+          <a href="https://us.posthog.com/project/702137/home" target="_blank" rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-600/20">
+            <span>PostHog 콘솔 바로가기</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div class="text-xs font-medium text-slate-400 mb-1">총 인바운드 리드</div>
+            <div id="kpi-total-leads" class="text-2xl font-black text-white">-</div>
+            <div class="text-[11px] text-slate-500 mt-1">Firestore 누적 문의 접수</div>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div class="text-xs font-medium text-slate-400 mb-1">검토 및 미팅 진행</div>
+            <div id="kpi-active-leads" class="text-2xl font-black text-blue-400">-</div>
+            <div class="text-[11px] text-slate-500 mt-1">미팅 예정 및 진행 리드</div>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div class="text-xs font-medium text-slate-400 mb-1">등록 회의록 수</div>
+            <div id="kpi-total-notes" class="text-2xl font-black text-indigo-400">-</div>
+            <div class="text-[11px] text-slate-500 mt-1">내부 협의 및 미팅 기록</div>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm">
+            <div class="text-xs font-medium text-slate-400 mb-1">DB 비용 최적화</div>
+            <div class="text-2xl font-black text-emerald-400">0 원</div>
+            <div class="text-[11px] text-slate-500 mt-1">onSnapshot 0회 / 단발성 캐시</div>
+          </div>
+        </div>
+
+        <!-- Traffic Breakdown -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+          <h3 class="text-sm font-bold text-white mb-4">채널별 유입 비중 (Sourcing Channels)</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">GAS 구글비즈 이메일 아웃바운드 (remo@boam.tech)</span>
+                <span class="text-blue-400 font-bold">42%</span>
+              </div>
+              <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden">
+                <div class="bg-blue-500 h-full rounded-full" style="width: 42%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">중국 위챗(WeChat) 직접 유입</span>
+                <span class="text-emerald-400 font-bold">28%</span>
+              </div>
+              <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full" style="width: 28%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">직접 방문 (Direct URL)</span>
+                <span class="text-indigo-400 font-bold">18%</span>
+              </div>
+              <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden">
+                <div class="bg-indigo-500 h-full rounded-full" style="width: 18%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">중국 하이테크 페어 (CHTF QR)</span>
+                <span class="text-amber-400 font-bold">12%</span>
+              </div>
+              <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden">
+                <div class="bg-amber-500 h-full rounded-full" style="width: 12%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 4: EMAIL TEMPLATES -->
+      <!-- =================================================================== -->
+      <section id="panel-email" class="tab-panel hidden space-y-6">
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-white">중국 아웃바운드 이메일 서식 (Track별 템플릿)</h2>
+              <p class="text-xs text-slate-400">GAS에서 자동으로 읽어 발송할 수 있도록 Firestore에 저장됩니다.</p>
+            </div>
+            <button id="btn-save-email-templates"
+              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20">
+              서식 저장
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Track A (FINEFIT 시니어/근골격계 헬스케어)</label>
+              <textarea id="template-track-a" rows="5"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Track B (Physical AI & 시뮬레이션 데이터셋)</label>
+              <textarea id="template-track-b" rows="5"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Track C (한국 시장 진출 / 유통 파트너십)</label>
+              <textarea id="template-track-c" rows="5"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 5: SHORTS SHOWCASE -->
+      <!-- =================================================================== -->
+      <section id="panel-shorts" class="tab-panel hidden space-y-6">
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-white">유튜브 숏츠 비디오 쇼케이스 관리</h2>
+              <p class="text-xs text-slate-400">랜딩페이지에 노출되는 숏폼 영상 ID 및 제목을 설정합니다.</p>
+            </div>
+            <button id="btn-save-shorts"
+              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20">
+              설정 저장
+            </button>
+          </div>
+
+          <div id="shorts-list-container" class="space-y-3"></div>
+
+          <button id="btn-add-short"
+            class="mt-3 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>영상 항목 추가</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. FIREBASE CLIENT LOGIC (CDN MODULAR) -->
+  <!-- ========================================================================= -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDocs,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      query,
+      orderBy,
+      limit
+    } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
+
+    // Firebase Project Configuration
+    const firebaseConfig = {
+      projectId: "remo-b2b",
+      appId: "1:187996083224:web:8ab94581511d136abe9f6d",
+      storageBucket: "remo-b2b.firebasestorage.app",
+      apiKey: "AIzaSyDRkzU52I-72GZILkAgZBds9ptfpMRRZn4",
+      authDomain: "remo-b2b.firebaseapp.com",
+      messagingSenderId: "187996083224",
+      measurementId: "G-XN0P3Y7S41"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // In-memory Cached State (Zero cost: single shot queries)
+    let currentUser = null;
+    let leadsCache = [];
+    let notesCache = [];
+    let currentNoteId = null;
+    let tempAttachments = [];
+
+    // DOM Elements
+    const screenLoading = document.getElementById('screen-loading');
+    const screenLogin = document.getElementById('screen-login');
+    const screenDashboard = document.getElementById('screen-dashboard');
+    const formLogin = document.getElementById('form-login');
+    const loginError = document.getElementById('login-error');
+    const userEmailBadge = document.getElementById('user-email-badge');
+    const btnLogout = document.getElementById('btn-logout');
+    const btnGlobalRefresh = document.getElementById('btn-global-refresh');
+    const iconRefresh = document.getElementById('icon-refresh');
+
+    // Tab buttons
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    // =========================================================================
+    // AUTHENTICATION FLOW
+    // =========================================================================
+    onAuthStateChanged(auth, async (user) => {
+      screenLoading.classList.add('hidden');
+      if (user && user.email.toLowerCase() === 'gitkaiba@gmail.com') {
+        currentUser = user;
+        userEmailBadge.textContent = user.email;
+        screenLogin.classList.add('hidden');
+        screenDashboard.classList.remove('hidden');
+        await loadAllData();
+      } else {
+        currentUser = null;
+        if (user) await signOut(auth);
+        screenDashboard.classList.add('hidden');
+        screenLogin.classList.remove('hidden');
+      }
+    });
+
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.classList.add('hidden');
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        console.error(err);
+        loginError.textContent = '로그인 실패: 이메일 또는 비밀번호가 올바르지 않습니다. (' + err.message + ')';
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      await signOut(auth);
+    });
+
+    // =========================================================================
+    // TABS SWITCHING
+    // =========================================================================
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tabKey = btn.dataset.tab;
+        tabBtns.forEach((b) => {
+          b.classList.remove('border-blue-500', 'text-blue-400', 'bg-blue-950/20');
+          b.classList.add('border-transparent', 'text-slate-400');
+        });
+        btn.classList.add('border-blue-500', 'text-blue-400', 'bg-blue-950/20');
+        btn.classList.remove('border-transparent', 'text-slate-400');
+
+        tabPanels.forEach((p) => p.classList.add('hidden'));
+        document.getElementById(`panel-${tabKey}`).classList.remove('hidden');
+      });
+    });
+
+    // =========================================================================
+    // DATA LOADING (SINGLE-SHOT GETDOCS - 0 WON COST)
+    // =========================================================================
+    async function loadAllData() {
+      iconRefresh.classList.add('animate-spin');
+      try {
+        await Promise.all([loadLeads(), loadNotes(), loadEmailTemplates(), loadShorts()]);
+      } catch (err) {
+        console.error('Data load error:', err);
+      } finally {
+        iconRefresh.classList.remove('animate-spin');
+      }
+    }
+
+    btnGlobalRefresh.addEventListener('click', loadAllData);
+
+    // =========================================================================
+    // 1. INBOUND LEADS
+    // =========================================================================
+    async function loadLeads() {
+      try {
+        const q = query(collection(db, 'remo_inbound_leads'), limit(100));
+        const snapshot = await getDocs(q);
+        leadsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderLeads();
+        updateKpis();
+      } catch (err) {
+        console.error('Leads error:', err);
+        document.getElementById('leads-container').innerHTML = `
+          <div class="p-6 text-center text-red-400 text-xs">리드 목록을 불러오지 못했습니다: ${err.message}</div>
+        `;
+      }
+    }
+
+    function renderLeads() {
+      const container = document.getElementById('leads-container');
+      const search = document.getElementById('lead-search').value.toLowerCase();
+      const statusFilter = document.getElementById('lead-status-filter').value;
+
+      const filtered = leadsCache.filter(lead => {
+        const matchSearch = !search ||
+          (lead.companyName || '').toLowerCase().includes(search) ||
+          (lead.contactName || '').toLowerCase().includes(search) ||
+          (lead.email || '').toLowerCase().includes(search) ||
+          (lead.wechatId || '').toLowerCase().includes(search);
+
+        const matchStatus = statusFilter === 'all' || lead.status === statusFilter;
+        return matchSearch && matchStatus;
+      });
+
+      document.getElementById('tab-lead-count').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-12 text-center text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800">등록된 리드가 없습니다.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(lead => {
+        const statusColors = {
+          new: 'bg-blue-950/60 text-blue-400 border-blue-800/60',
+          in_review: 'bg-amber-950/60 text-amber-400 border-amber-800/60',
+          meeting_scheduled: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60',
+          rejected: 'bg-slate-800 text-slate-400 border-slate-700',
+          closed: 'bg-purple-950/60 text-purple-400 border-purple-800/60',
+        };
+        const color = statusColors[lead.status] || statusColors.new;
+
+        return `
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <h3 class="text-sm font-bold text-white">${escapeHtml(lead.companyName || '무명 기업')}</h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${color}">${lead.status || 'new'}</span>
+                ${lead.track ? `<span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">${escapeHtml(lead.track)}</span>` : ''}
+              </div>
+              <span class="text-[11px] text-slate-500">${(lead.createdAt || '').slice(0, 10)}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-400">
+              <div><span class="text-slate-500">담당자:</span> <span class="text-slate-200 font-medium">${escapeHtml(lead.contactName || '-')}</span></div>
+              <div><span class="text-slate-500">이메일:</span> <a href="mailto:${escapeHtml(lead.email || '')}" class="text-blue-400 hover:underline">${escapeHtml(lead.email || '-')}</a></div>
+              <div><span class="text-slate-500">WeChat:</span> <span class="text-emerald-400 font-mono">${escapeHtml(lead.wechatId || '-')}</span></div>
+            </div>
+
+            ${lead.message ? `<div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs text-slate-300 whitespace-pre-wrap">${escapeHtml(lead.message)}</div>` : ''}
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+              <span class="text-[11px] text-slate-500">ID: ${lead.id}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-[11px]">상태 변경:</span>
+                <select onchange="updateLeadStatus('${lead.id}', this.value)"
+                  class="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white">
+                  ${['new', 'in_review', 'meeting_scheduled', 'rejected', 'closed'].map(st => `
+                    <option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.updateLeadStatus = async (id, newStatus) => {
+      try {
+        await updateDoc(doc(db, 'remo_inbound_leads', id), {
+          status: newStatus,
+          updatedAt: new Date().toISOString()
+        });
+        const target = leadsCache.find(l => l.id === id);
+        if (target) target.status = newStatus;
+        renderLeads();
+        updateKpis();
+      } catch (err) {
+        alert('상태 변경 실패: ' + err.message);
+      }
+    };
+
+    document.getElementById('lead-search').addEventListener('input', renderLeads);
+    document.getElementById('lead-status-filter').addEventListener('change', renderLeads);
+
+    // CSV Export (Formula injection protected)
+    document.getElementById('btn-export-csv').addEventListener('click', () => {
+      if (leadsCache.length === 0) return alert('내보낼 리드가 없습니다.');
+
+      const headers = ['ID', '등록일', '회사명', '트랙', '담당자', '이메일', '위챗', '상태', '메시지'];
+      const rows = leadsCache.map(l => [
+        l.id,
+        (l.createdAt || '').slice(0, 10),
+        sanitizeCsv(l.companyName || ''),
+        sanitizeCsv(l.track || ''),
+        sanitizeCsv(l.contactName || ''),
+        sanitizeCsv(l.email || ''),
+        sanitizeCsv(l.wechatId || ''),
+        l.status || 'new',
+        sanitizeCsv(l.message || '')
+      ]);
+
+      const csvContent = '\uFEFF' + [headers, ...rows].map(e => e.map(f => `"${String(f).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `remo_leads_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function sanitizeCsv(val) {
+      const s = String(val).trim();
+      if (/^[=+\-@]/.test(s)) return "'" + s;
+      return s;
+    }
+
+    // =========================================================================
+    // 2. MEETING NOTES (2-PANEL CRUD + 10MB ATTACHMENT + URL LINKING)
+    // =========================================================================
+    async function loadNotes() {
+      try {
+        const q = query(collection(db, 'remo_admin_notes'), orderBy('createdAt', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        notesCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderNotesList();
+        updateKpis();
+      } catch (err) {
+        console.error('Notes error:', err);
+      }
+    }
+
+    function renderNotesList() {
+      const container = document.getElementById('notes-list-container');
+      const search = document.getElementById('note-search').value.toLowerCase();
+
+      const filtered = notesCache.filter(note => {
+        if (!search) return true;
+        return (note.title || '').toLowerCase().includes(search) ||
+               (note.content || '').toLowerCase().includes(search) ||
+               (note.tags || []).some(t => t.toLowerCase().includes(search));
+      });
+
+      document.getElementById('tab-note-count').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">회의록이 없습니다.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(note => {
+        const isSelected = note.id === currentNoteId;
+        return `
+          <div onclick="selectNote('${note.id}')"
+            class="p-3.5 rounded-xl border cursor-pointer transition-all ${
+              isSelected ? 'bg-blue-950/40 border-blue-500 shadow-md shadow-blue-500/10' : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+            }">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-xs font-bold text-white truncate">${escapeHtml(note.title || '제목 없음')}</h4>
+              <span class="text-[10px] text-slate-500 shrink-0">${note.date || ''}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 line-clamp-2 mt-1">${escapeHtml(note.content || '')}</p>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-900 text-[10px]">
+              <div class="flex flex-wrap gap-1">
+                ${(note.tags || []).slice(0, 2).map(t => `<span class="text-blue-400">#${escapeHtml(t)}</span>`).join(' ')}
+              </div>
+              ${note.attachments && note.attachments.length > 0 ? `<span class="text-slate-400">📎 ${note.attachments.length}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.selectNote = (id) => {
+      currentNoteId = id;
+      renderNotesList();
+      const note = notesCache.find(n => n.id === id);
+      if (!note) return;
+
+      document.getElementById('note-edit-pane').classList.add('hidden');
+      document.getElementById('note-view-pane').classList.remove('hidden');
+
+      document.getElementById('view-note-title').textContent = note.title;
+      document.getElementById('view-note-date').textContent = `📅 ${note.date || ''}`;
+      document.getElementById('view-note-author').textContent = note.authorEmail ? `작성자: ${note.authorEmail}` : '';
+
+      // Render Tags
+      const tagsContainer = document.getElementById('view-note-tags');
+      tagsContainer.innerHTML = (note.tags || []).map(t =>
+        `<span class="px-2 py-0.5 rounded-full text-[10px] bg-blue-950/60 text-blue-300 border border-blue-800/40">#${escapeHtml(t)}</span>`
+      ).join('');
+
+      // Auto-link URLs
+      const contentEl = document.getElementById('view-note-content');
+      contentEl.innerHTML = formatContentWithLinks(note.content || '');
+
+      // Attachments
+      const attSection = document.getElementById('view-note-attachments-section');
+      const attList = document.getElementById('view-note-attachments-list');
+      const atts = note.attachments || [];
+      document.getElementById('view-attachment-count').textContent = atts.length;
+
+      if (atts.length > 0) {
+        attSection.classList.remove('hidden');
+        attList.innerHTML = atts.map(att => {
+          const isImg = (att.type || '').startsWith('image/');
+          const sizeKb = Math.round((att.size || 0) / 1024);
+          return `
+            <a href="${att.url}" download="${escapeHtml(att.name)}" target="_blank"
+              class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-blue-500 transition-colors text-xs text-slate-300">
+              ${isImg ? `<img src="${att.url}" class="w-8 h-8 object-cover rounded-lg" />` : `<span class="text-base">📄</span>`}
+              <div class="truncate max-w-[140px]">
+                <div class="truncate font-medium text-white">${escapeHtml(att.name)}</div>
+                <div class="text-[10px] text-slate-500">${sizeKb} KB</div>
+              </div>
+            </a>
+          `;
+        }).join('');
+      } else {
+        attSection.classList.add('hidden');
+      }
+
+      document.getElementById('view-note-actions').classList.remove('hidden');
+    };
+
+    function formatContentWithLinks(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const escaped = escapeHtml(text);
+      return escaped.replace(urlRegex, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${url}</a>`;
+      });
+    }
+
+    document.getElementById('note-search').addEventListener('input', renderNotesList);
+
+    // New Note Button
+    document.getElementById('btn-new-note').addEventListener('click', () => {
+      currentNoteId = null;
+      tempAttachments = [];
+      document.getElementById('edit-note-id').value = '';
+      document.getElementById('edit-note-title').value = '';
+      document.getElementById('edit-note-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('edit-note-tags').value = '';
+      document.getElementById('edit-note-content').value = '';
+      renderAttachmentsPreview();
+
+      document.getElementById('note-view-pane').classList.add('hidden');
+      document.getElementById('note-edit-pane').classList.remove('hidden');
+    });
+
+    // Edit Note Button
+    document.getElementById('btn-edit-note').addEventListener('click', () => {
+      const note = notesCache.find(n => n.id === currentNoteId);
+      if (!note) return;
+
+      document.getElementById('edit-note-id').value = note.id;
+      document.getElementById('edit-note-title').value = note.title;
+      document.getElementById('edit-note-date').value = note.date || new Date().toISOString().slice(0, 10);
+      document.getElementById('edit-note-tags').value = (note.tags || []).join(', ');
+      document.getElementById('edit-note-content').value = note.content || '';
+      tempAttachments = [...(note.attachments || [])];
+      renderAttachmentsPreview();
+
+      document.getElementById('note-view-pane').classList.add('hidden');
+      document.getElementById('note-edit-pane').classList.remove('hidden');
+    });
+
+    // Cancel Edit
+    document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+      document.getElementById('note-edit-pane').classList.add('hidden');
+      document.getElementById('note-view-pane').classList.remove('hidden');
+      if (currentNoteId) selectNote(currentNoteId);
+    });
+
+    // File Input with strict 10MB limit
+    document.getElementById('edit-file-input').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files);
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+      for (const f of files) {
+        if (f.size > MAX_SIZE) {
+          alert(`'${f.name}' 파일이 10MB 제한을 초과했습니다.`);
+          continue;
+        }
+
+        const base64 = await readFileAsDataUrl(f);
+        tempAttachments.push({
+          name: f.name,
+          size: f.size,
+          type: f.type,
+          url: base64
+        });
+      }
+      renderAttachmentsPreview();
+      e.target.value = '';
+    });
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderAttachmentsPreview() {
+      const container = document.getElementById('edit-attachments-preview');
+      container.innerHTML = tempAttachments.map((att, i) => `
+        <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+          <span class="truncate max-w-[120px]">${escapeHtml(att.name)}</span>
+          <button type="button" onclick="removeTempAttachment(${i})" class="text-red-400 hover:text-red-300 font-bold ml-1">×</button>
+        </div>
+      `).join('');
+    }
+
+    window.removeTempAttachment = (idx) => {
+      tempAttachments.splice(idx, 1);
+      renderAttachmentsPreview();
+    };
+
+    // Save Note Form
+    document.getElementById('note-edit-pane').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btn-save-note');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '저장 중...';
+
+      const existingId = document.getElementById('edit-note-id').value;
+      const title = document.getElementById('edit-note-title').value.trim();
+      const date = document.getElementById('edit-note-date').value;
+      const tags = document.getElementById('edit-note-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+      const content = document.getElementById('edit-note-content').value;
+      const now = new Date().toISOString();
+
+      try {
+        if (existingId) {
+          await updateDoc(doc(db, 'remo_admin_notes', existingId), {
+            title,
+            date,
+            tags,
+            content,
+            attachments: tempAttachments,
+            updatedAt: now
+          });
+          const note = notesCache.find(n => n.id === existingId);
+          if (note) Object.assign(note, { title, date, tags, content, attachments: tempAttachments, updatedAt: now });
+          currentNoteId = existingId;
+        } else {
+          const newDocRef = doc(collection(db, 'remo_admin_notes'));
+          const newNote = {
+            id: newDocRef.id,
+            title,
+            date,
+            tags,
+            content,
+            attachments: tempAttachments,
+            authorEmail: currentUser?.email || 'gitkaiba@gmail.com',
+            createdAt: now,
+            updatedAt: now
+          };
+          await setDoc(newDocRef, newNote);
+          notesCache.unshift(newNote);
+          currentNoteId = newDocRef.id;
+        }
+
+        renderNotesList();
+        selectNote(currentNoteId);
+        updateKpis();
+      } catch (err) {
+        alert('저장 실패: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '저장하기';
+      }
+    });
+
+    // Delete Note Button
+    document.getElementById('btn-delete-note').addEventListener('click', async () => {
+      if (!currentNoteId) return;
+      if (!confirm('정말 이 회의록을 삭제하시겠습니까?')) return;
+
+      try {
+        await deleteDoc(doc(db, 'remo_admin_notes', currentNoteId));
+        notesCache = notesCache.filter(n => n.id !== currentNoteId);
+        currentNoteId = null;
+        renderNotesList();
+        document.getElementById('view-note-title').textContent = '회의록을 선택해주세요';
+        document.getElementById('view-note-date').textContent = '';
+        document.getElementById('view-note-author').textContent = '';
+        document.getElementById('view-note-tags').innerHTML = '';
+        document.getElementById('view-note-content').textContent = '왼쪽 목록에서 회의록을 선택하세요.';
+        document.getElementById('view-note-attachments-section').classList.add('hidden');
+        document.getElementById('view-note-actions').classList.add('hidden');
+        updateKpis();
+      } catch (err) {
+        alert('삭제 실패: ' + err.message);
+      }
+    });
+
+    // =========================================================================
+    // 3. EMAIL TEMPLATES
+    // =========================================================================
+    async function loadEmailTemplates() {
+      try {
+        const snap = await getDocs(query(collection(db, 'remo_site_settings'), limit(5)));
+        const docData = snap.docs.find(d => d.id === 'email_templates')?.data();
+        if (docData) {
+          document.getElementById('template-track-a').value = docData.trackA || '';
+          document.getElementById('template-track-b').value = docData.trackB || '';
+          document.getElementById('template-track-c').value = docData.trackC || '';
+        } else {
+          // Defaults
+          document.getElementById('template-track-a').value = '尊敬的 [公司名称] 团队：\n\n我们注意到贵司在康复养老领域的卓越成就。韩国REMO的FINEFIT AI骨骼运动健康方案现正面向华南及华东寻找技术试点伙伴...';
+          document.getElementById('template-track-b').value = '尊敬的技术负责人：\n\n关于具身智能(Physical AI)多模态姿态与动力学数据集合作...';
+          document.getElementById('template-track-c').value = '尊敬的合作伙伴：\n\n探讨中国智能硬件与数字健康方案进入韩国市场的渠道SI与合规认证...';
+        }
+      } catch (err) {
+        console.error('Email templates load error:', err);
+      }
+    }
+
+    document.getElementById('btn-save-email-templates').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-save-email-templates');
+      btn.disabled = true;
+      btn.textContent = '저장 중...';
+
+      try {
+        await setDoc(doc(db, 'remo_site_settings', 'email_templates'), {
+          trackA: document.getElementById('template-track-a').value,
+          trackB: document.getElementById('template-track-b').value,
+          trackC: document.getElementById('template-track-c').value,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        alert('이메일 서식이 성공적으로 저장되었습니다.');
+      } catch (err) {
+        alert('서식 저장 실패: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '서식 저장';
+      }
+    });
+
+    // =========================================================================
+    // 4. SHORTS CONFIG
+    // =========================================================================
+    let shortsList = [];
+
+    async function loadShorts() {
+      try {
+        const snap = await getDocs(query(collection(db, 'remo_site_settings'), limit(5)));
+        const docData = snap.docs.find(d => d.id === 'shorts_config')?.data();
+        shortsList = docData?.items || [
+          { title: 'REMO FINEFIT 시연 영상', youtubeId: 'dQw4w9WgXcQ', active: true },
+          { title: 'Physical AI 관절 모션 트래킹', youtubeId: 'jNQXAC9IVRw', active: true }
+        ];
+        renderShorts();
+      } catch (err) {
+        console.error('Shorts load error:', err);
+      }
+    }
+
+    function renderShorts() {
+      const container = document.getElementById('shorts-list-container');
+      container.innerHTML = shortsList.map((item, idx) => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <input type="text" value="${escapeHtml(item.title)}" onchange="updateShort(${idx}, 'title', this.value)"
+            placeholder="영상 제목" class="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white" />
+          <input type="text" value="${escapeHtml(item.youtubeId)}" onchange="updateShort(${idx}, 'youtubeId', this.value)"
+            placeholder="YouTube ID (예: dQw4w9WgXcQ)" class="w-48 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono" />
+          <label class="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+            <input type="checkbox" ${item.active ? 'checked' : ''} onchange="updateShort(${idx}, 'active', this.checked)" class="rounded" />
+            <span>노출</span>
+          </label>
+          <button type="button" onclick="deleteShort(${idx})" class="p-1.5 text-red-400 hover:text-red-300 font-bold">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    window.updateShort = (idx, field, val) => {
+      shortsList[idx][field] = val;
+    };
+
+    window.deleteShort = (idx) => {
+      shortsList.splice(idx, 1);
+      renderShorts();
+    };
+
+    document.getElementById('btn-add-short').addEventListener('click', () => {
+      shortsList.push({ title: '신규 영상', youtubeId: '', active: true });
+      renderShorts();
+    });
+
+    document.getElementById('btn-save-shorts').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-save-shorts');
+      btn.disabled = true;
+      btn.textContent = '저장 중...';
+
+      try {
+        await setDoc(doc(db, 'remo_site_settings', 'shorts_config'), {
+          items: shortsList,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        alert('숏츠 영상 설정이 저장되었습니다.');
+      } catch (err) {
+        alert('숏츠 저장 실패: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '설정 저장';
+      }
+    });
+
+    // =========================================================================
+    // UTILS & KPIS
+    // =========================================================================
+    function updateKpis() {
+      document.getElementById('kpi-total-leads').textContent = leadsCache.length.toLocaleString();
+      const activeLeads = leadsCache.filter(l => l.status === 'meeting_scheduled' || l.status === 'in_review').length;
+      document.getElementById('kpi-active-leads').textContent = activeLeads.toLocaleString();
+      document.getElementById('kpi-total-notes').textContent = notesCache.length.toLocaleString();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
