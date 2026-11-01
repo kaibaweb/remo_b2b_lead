@@ -166,7 +166,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
           />
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-7 sm:grid-cols-2">
           {/* Required fields */}
           <div className="sm:col-span-2"><label htmlFor="track" className="block text-[15px] font-semibold mb-2">{t("合作方向")}</label><select id="track" value={selectedTrack || queryTrack || formData.track} onChange={e=>setSelectedTrack(e.target.value)} className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3.5"><option value="finefit">{t("FINEFIT 产品与渠道")}</option><option value="physical_ai_data">{t("机器人训练数据需求")}</option><option value="korea_entry">{t("韩国市场与技术合作")}</option></select></div>
           <Input

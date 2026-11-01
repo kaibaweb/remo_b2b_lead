@@ -152,3 +152,8 @@ input, textarea, select {
 
 /* Keep long bilingual labels and URLs within narrow screens. */
 body { overflow-wrap: anywhere; }
+
+/* A clear reading rhythm for the bilingual landing page. */
+.landing-content { line-height: 1.75; }
+.landing-content h3 { text-wrap: balance; }
+.landing-content p, .landing-content li { text-wrap: pretty; }

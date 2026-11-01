@@ -12,7 +12,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const inputId = id || label.replace(/\s/g, '-').toLowerCase();
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         <label htmlFor={inputId} className="text-[15px] font-semibold text-text-secondary">
           {label}
         </label>
@@ -50,7 +50,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const inputId = id || label.replace(/\s/g, '-').toLowerCase();
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         <label htmlFor={inputId} className="text-[15px] font-semibold text-text-secondary">
           {label}
         </label>
