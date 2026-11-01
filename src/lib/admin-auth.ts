@@ -6,7 +6,7 @@ export async function verifyAdmin(request: Request) {
   try {
     const { auth } = await adminFirebase();
     const token = await auth.verifyIdToken(header.slice(7), true);
-    if (!token.email || !token.email_verified || token.email.toLowerCase() !== expected) return null;
+    if (!token.email || token.email.toLowerCase() !== expected) return null;
     return { uid: token.uid, email: token.email };
   } catch { return null; }
 }
