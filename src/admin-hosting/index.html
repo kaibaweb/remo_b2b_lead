@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>REMO B2B Admin Console</title>
+  <script>
+    // Filter out Tailwind CDN production notice from console
+    const _cw = console.warn;
+    console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _cw.apply(console, a); };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
