@@ -19,11 +19,17 @@
 ## 2. 하이브리드 자동화 아키텍처
 
 ```
-[Inbound (고객 방문)]
-  └─ Next.js 랜딩페이지 (Vercel: remob2blead.vercel.app)
-       ├─ Firestore: 인바운드 문의 접수 저장 (remo_inbound_leads)
-       ├─ Resend: 고객 확인 메일 자동 발송
-       └─ Telegram: 신규 문의 실시간 알림
+[Inbound (고객 방문 및 상담)]
+  ├─ 공개 다국어 랜딩페이지 (Vercel: remob2blead.vercel.app)
+  │    ├─ 20개국 다국어 로케일 (간체 기본값)
+  │    ├─ CHTF 2026 선전 연계 3대 비즈니스 제안 (Data / Korea / Distribution)
+  │    └─ 직접 소통 채널: 이메일(remo@boam.tech), WeChat(zeeeeeyul / weixin://), LinkedIn
+  └─ 격리 관리자 콘솔 (Firebase Hosting: remo-b2b.web.app)
+       ├─ 완전 물리적 격리 배포 (중국 외부 트래픽과 어드민 환경 완전 분리)
+       ├─ Firestore 철통 보안 규칙 (gitkaiba@gmail.com 전용 인가)
+       ├─ 0원 비용 최적화 (onSnapshot 0회, 단발성 쿼리 및 온샷 메모리 캐시 유지)
+       ├─ 인바운드 리드 관리, 회의록(Notes) 2패널 CRUD (10MB 첨부), 이메일 서식, 숏폼 관리
+       └─ PostHog 실시간 유입 분석 (Project 702137)
 
 [Outbound (우리가 발굴 및 선제안)]
   ├─ 로컬 안티그래비티 (remo_lead Python CLI): 중국 기업 데이터 소싱 & 스코어링
@@ -46,9 +52,13 @@ remo_b2b_lead/
 │   ├── cli.py
 │   ├── core.py
 │   └── providers.py
-├── src/                  # Next.js 웹 CRM & 랜딩페이지 프론트엔드
-│   ├── app/
-│   └── lib/              # Firebase, Resend, Telegram 클라이언트
+├── scripts/
+│   ├── deploy-hosting.mjs # Firebase Hosting 자동 배포 스크립트
+│   └── check-locales.mjs  # 20개 로케일 무결성 검증
+├── src/
+│   ├── admin-hosting/    # Firebase Hosting 격리 관리자 콘솔 SPA
+│   ├── app/              # Next.js App Router 랜딩페이지
+│   └── lib/              # Firebase, 분석 클라이언트
 └── config.example.json
 ```
 
