@@ -1,7 +1,8 @@
 /** Contact destinations supplied by the operator; no inferred partnership or QR links. */
 export const businessContacts = Object.freeze({
   email: 'remo@boam.tech',
-  wechat: 'zeeeeyul',
+  wechat: 'zeeeeeyul',
+  wechatHref: 'weixin://dl/chat?zeeeeeyul',
   linkedin: 'https://www.linkedin.com/in/zeeyulkim/',
   remo: 'https://www.remo.re.kr/',
   boam: 'https://boam.tech/',

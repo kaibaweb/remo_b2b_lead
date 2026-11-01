@@ -18,20 +18,50 @@ export function BusinessEmailLink({ meeting = false, className = 'space-button' 
 
 export function WeChatCopy() {
   const { t } = useTranslation();
-  const [state,setState]=useState<'idle'|'copied'|'error'>('idle');
+  const [state, setState] = useState<'idle' | 'copied' | 'error'>('idle');
+
   async function copy() {
     try {
       await navigator.clipboard.writeText(businessContacts.wechat);
       setState('copied');
       trackEvent('wechat_copy');
-    } catch { setState('error'); }
+    } catch {
+      setState('error');
+    }
+    try {
+      if (typeof window !== 'undefined' && !window.navigator?.webdriver) {
+        window.location.href = businessContacts.wechatHref;
+      }
+    } catch {}
   }
-  return <div className="business-wechat">
-    <div><span>WeChat</span><code dir="ltr">{businessContacts.wechat}</code></div>
-    <button type="button" className="business-copy-button" onClick={copy}>
-      {state==='copied'?<Check aria-hidden="true" className="h-4 w-4"/>:<svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h4"/></svg>}
-      {state==='copied'?t('微信号已复制'):t('复制微信号')}
-    </button>
-    <p role="status" className="business-copy-status">{state==='error'?t('复制失败，请手动复制微信号。'):state==='copied'?t('微信号已复制'):''}</p>
-  </div>;
+
+  return (
+    <div className="business-wechat">
+      <div>
+        <span>WeChat</span>
+        <a
+          href={businessContacts.wechatHref}
+          onClick={copy}
+          title={`WeChat: ${businessContacts.wechat}`}
+          className="hover:underline hover:text-emerald-400 transition-colors inline-block"
+        >
+          <code dir="ltr">{businessContacts.wechat}</code>
+        </a>
+      </div>
+      <button type="button" className="business-copy-button" onClick={copy}>
+        {state === 'copied' ? (
+          <Check aria-hidden="true" className="h-4 w-4" />
+        ) : (
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="8" y="8" width="12" height="13" rx="2" />
+            <path d="M16 8V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h4" />
+          </svg>
+        )}
+        {state === 'copied' ? t('微信号已复制') : t('复制微信号')}
+      </button>
+      <p role="status" className="business-copy-status">
+        {state === 'error' ? t('复制失败，请手动复制微信号。') : state === 'copied' ? t('微信号已复制') : ''}
+      </p>
+    </div>
+  );
 }

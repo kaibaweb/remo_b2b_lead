@@ -69,7 +69,7 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
           assert.equal(await page.locator('#meeting-interest').inputValue(),'');
           assert.ok((await page.locator('#chtf').innerText()).includes(catalog['2026年11月26–28日']));
           await page.locator('.business-copy-button').click();
-          assert.equal(await page.evaluate(()=>window.__copiedWechat),'zeeeeyul');
+          assert.equal(await page.evaluate(()=>window.__copiedWechat),'zeeeeeyul');
           await page.locator('.business-copy-status').filter({hasText:catalog['微信号已复制']}).waitFor();
           await page.evaluate(()=>{ navigator.clipboard.writeText=async()=>{throw new Error('denied')}; });
           await page.locator('.business-copy-button').click();

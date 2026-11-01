@@ -23,7 +23,7 @@ A proxy refusal is not an origin HTTP status or proof that a source is offline. 
 | Physical AI/motion data, single-camera posture/gait/3D analysis, API/SDK integration | User's requested areas to evaluate | Described as project discussions with capabilities, outputs, licensing and delivery scope to be confirmed |
 | Robotics, wellness, sports, public/workplace safety opportunities | User's target-audience brief | Customer problems and prospective applications, not proven customer deployments |
 | CHTF 2026, Shenzhen, November 26–28, 2026 | User's supplied event information | Meeting-enquiry context; no booth, guaranteed onsite presence, appointment time, official event artwork or attendance confirmation |
-| remo@boam.tech; zeeeeyul; LinkedIn /in/zeeyulkim/ | Exact user-supplied channels | Mail composer, explicit LinkedIn navigation and WeChat clipboard action; no QR codes, invented deep links or automatic messages |
+| remo@boam.tech; zeeeeeyul; LinkedIn /in/zeeyulkim/ | Exact user-supplied channels | Mail composer, explicit LinkedIn navigation and WeChat clipboard action; no QR codes, invented deep links or automatic messages |
 | REMO and BOAM are separate companies | Explicit user instruction | Distinct link cards; BOAM is an external networking channel, never a claimed official partner |
 
 ## Unavailable evidence and deliberate omissions
