@@ -55,3 +55,7 @@ remo_b2b_lead/
 ## 공개 페이지 다국어 유지보수
 
 20개 언어의 로케일별 번역, 브라우저 언어 선택 규칙과 검증 절차는 [다국어 운영 매뉴얼](docs/LOCALIZATION.md)에 정리되어 있습니다. 모든 공개 화면 업데이트에 [maintaining-locales 스킬](.agents/skills/maintaining-locales/SKILL.md)을 적용합니다. 빌드 전 자동으로 번역 누락을 검사하며 간체 기본값·브라우저 맞춤·영어 대체 규칙을 유지합니다.
+
+## 글로벌 비즈니스 랜딩 콘텐츠
+
+메인은 고객의 데이터·통합 문제에서 출발하는 7개 섹션(Hero → What You Need → Our Solutions → Why REMO → Global Presence → CHTF → Final CTA)으로 구성됩니다. 이메일·LinkedIn·WeChat이 직접 문의 동선이며 기존 구조화 문의 폼은 로케일별 `/contact`에 유지합니다. 제품·전략·실적의 출처 상태와 미확인 항목은 [콘텐츠 출처 기록](docs/CONTENT-SOURCES.md)을 확인하세요.

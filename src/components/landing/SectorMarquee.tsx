@@ -6,7 +6,7 @@ import { useTranslation } from '@/components/i18n/LocaleProvider';
 export function SectorMarquee() {
   const {t}=useTranslation();
   const [paused,setPaused]=useState(false);
-  const sectors=[t('健身科技'),t('人形机器人'),t('训练数据'),t('韩国市场拓展')];
+  const sectors=[t('Physical AI 与机器人'),t('医疗健康与身心健康'),t('体育与健身'),t('公共服务与职场安全')];
   return <div className="space-marquee">
     <p className="sr-only">{sectors.join(' · ')}</p>
     <div className="space-marquee-window" aria-hidden="true"><div className={`space-marquee-track ${paused?'is-paused':''}`}>

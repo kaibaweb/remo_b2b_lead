@@ -1,4 +1,16 @@
 'use client';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
 import Link from 'next/link';
-export function Footer(){ const { t, path } = useTranslation();return <footer className="space-footer text-white pt-12 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 px-5 md:px-8"><div className="max-w-[1200px] mx-auto"><div className="grid md:grid-cols-3 gap-8 mb-10"><div><p className="font-extrabold text-xl mb-4">REMO / China Connect</p><p className="text-white/60 text-sm">{t("连接中国企业与韩国市场。")}<br/>{t("产品 · 数据 · 本地合作")}</p></div><div><p className="font-bold mb-4">{t("合作方向")}</p><div className="space-y-2 text-sm text-white/60"><p>{t("FINEFIT 健身科技")}</p><p>{t("Physical AI 数据需求")}</p><p>{t("韩国市场合作")}</p></div></div><div><p className="font-bold mb-4">{t("联系我们")}</p><div className="flex flex-col gap-3 text-sm text-white/60"><Link href={path("/contact")}>{t("合作咨询")}</Link><Link href={path("/privacy")}>{t("隐私说明")}</Link>{process.env.NEXT_PUBLIC_CONTACT_EMAIL&&<a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}`}>{t("邮件联系")}</a>}{process.env.NEXT_PUBLIC_WECHAT_ID&&<span>{t("微信：")}{process.env.NEXT_PUBLIC_WECHAT_ID}</span>}</div></div></div><div className="border-t border-white/15 pt-6 text-xs text-white/40">© 2026 REMO China Connect · {t('版权信息')}</div></div></footer>;}
+import { businessContacts, businessEmailHref } from '@/lib/business-contact.mjs';
+
+export function Footer() {
+  const { t, path }=useTranslation();
+  return <footer className="space-footer text-white pt-12 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 px-5 md:px-8"><div className="max-w-[1200px] mx-auto">
+    <div className="grid md:grid-cols-3 gap-9 mb-10">
+      <div><p className="font-extrabold text-xl mb-4">REMO</p><p className="text-white/65 text-sm leading-relaxed">{t('人类动作智能，为下一项业务创造可能。')}</p><a className="space-text-link mt-4" href={businessContacts.remo} target="_blank" rel="noopener noreferrer">{t('访问 REMO 官网')} ↗</a></div>
+      <div><p className="font-bold mb-4">{t('我们的解决方案')}</p><div className="space-y-3 text-sm text-white/65"><a className="block" href={path('/#solutions')}>{t('Physical AI 与动作数据')}</a><a className="block" href={path('/#solutions')}>{t('视觉 AI 与动作分析')}</a><p>FINEFIT AI Mirror · FINEFIT Zone</p><p>FINEFIT SIMPro</p></div></div>
+      <div><p className="font-bold mb-4">{t('联系我们')}</p><div className="flex flex-col items-start gap-4 text-sm text-white/65"><a href={businessEmailHref(t('REMO 业务合作与会议咨询'),t('请介绍您的公司、应用场景和希望讨论的问题。'))} dir="ltr">{businessContacts.email}</a><a href={businessContacts.linkedin} target="_blank" rel="noopener noreferrer">{t('在 LinkedIn 建立联系')} ↗</a><span>WeChat: <code dir="ltr">{businessContacts.wechat}</code></span><Link href={path('/privacy')}>{t('隐私说明')}</Link></div></div>
+    </div>
+    <div className="border-t border-white/15 pt-6 text-xs text-white/50">© 2026 REMO · {t('版权信息')}</div>
+  </div></footer>;
+}

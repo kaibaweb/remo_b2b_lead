@@ -37,6 +37,9 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
       const catalog = JSON.parse(readFileSync(new URL(`../src/lib/messages/${id}.json`, import.meta.url), 'utf8'));
       const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
       const errors=[];
+      await page.addInitScript(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText: async value => { window.__copiedWechat = value; },
+      } }));
       page.on('pageerror', error => errors.push(error.message));
       for (const suffix of ['', '/contact', '/privacy']) {
         const response = await page.goto(`${baseURL}/${id}${suffix}`, {waitUntil:'load'});
@@ -45,7 +48,24 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
         assert.equal(await page.locator('html').getAttribute('dir'),dir);
         assert.equal(new URL(await page.locator('link[rel="canonical"]').getAttribute('href')).pathname,`/${id}${suffix}`);
         assert.equal(await page.locator('link[rel="alternate"][hreflang]').count(),21);
-        assert.ok((await page.title()).includes(catalog[suffix==='/privacy'?'咨询信息与隐私说明':suffix==='/contact'?'合作咨询':'连接中国企业与韩国市场。']));
+        assert.ok((await page.title()).includes(catalog[suffix==='/privacy'?'咨询信息与隐私说明':suffix==='/contact'?'合作咨询':'人类动作智能，为下一项业务创造可能。']));
+        if (suffix === '') {
+          assert.deepEqual(await page.locator('main > section').evaluateAll(nodes => nodes.map(node => node.id)),
+            ['hero','what-you-need','solutions','why-remo','global-presence','chtf','lead-form']);
+          const email = new URL(await page.locator('#lead-form .space-button').getAttribute('href'));
+          assert.equal(email.protocol,'mailto:');
+          assert.equal(email.pathname,'remo@boam.tech');
+          assert.equal(email.searchParams.get('subject'),catalog['REMO 业务合作与会议咨询']);
+          assert.equal(await page.locator('#lead-form .business-secondary-button').getAttribute('href'),'https://www.linkedin.com/in/zeeyulkim/');
+          assert.equal(await page.locator('#chtf .space-button').getAttribute('href').then(href=>new URL(href).searchParams.get('subject')),catalog['CHTF 2026 深圳会议咨询']);
+          assert.ok((await page.locator('#chtf').innerText()).includes(catalog['2026年11月26–28日']));
+          await page.locator('.business-copy-button').click();
+          assert.equal(await page.evaluate(()=>window.__copiedWechat),'zeeeeyul');
+          await page.locator('.business-copy-status').filter({hasText:catalog['微信号已复制']}).waitFor();
+          await page.evaluate(()=>{ navigator.clipboard.writeText=async()=>{throw new Error('denied')}; });
+          await page.locator('.business-copy-button').click();
+          await page.locator('.business-copy-status').filter({hasText:catalog['复制失败，请手动复制微信号。']}).waitFor();
+        }
         if(suffix==='/privacy') assert.ok((await page.locator('main').innerText()).includes(catalog['收集的信息']));
         for(const width of [320,390,768,1440]) {
           await page.setViewportSize({width,height:844});

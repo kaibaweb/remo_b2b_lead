@@ -1,6 +1,9 @@
 type AnalyticsEvent =
   | 'page_view'
   | 'hero_cta_click'
+  | 'business_email_click'
+  | 'chtf_meeting_click'
+  | 'wechat_copy'
   | 'sticky_cta_click'
   | 'case_view'
   | 'use_case_click'
