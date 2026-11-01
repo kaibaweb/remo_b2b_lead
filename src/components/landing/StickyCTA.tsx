@@ -36,7 +36,7 @@ export function StickyCTA() { const { t } = useTranslation();
   if (!visible || isFormInView) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-text-primary/10 bg-bg-warm/95 backdrop-blur-md p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <div className="space-sticky-cta fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-text-primary/10 bg-bg-warm/95 backdrop-blur-md p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
       <button
         onClick={() => {
           trackEvent('sticky_cta_click');

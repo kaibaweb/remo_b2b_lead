@@ -13,11 +13,11 @@ export function Section({ children, className, id, bg = 'warm' }: SectionProps) 
     <section
       id={id}
       className={cn(
-        'py-16 sm:py-20 lg:py-24 px-5 sm:px-8',
-        bg === 'warm' && 'bg-bg-warm',
-        bg === 'white' && 'bg-white',
-        bg === 'yellow' && 'bg-bg-section',
-        bg === 'blue' && 'bg-billy-blue-light',
+        'space-section py-20 sm:py-24 lg:py-28 px-5 sm:px-8',
+        bg === 'warm' && 'space-section--warm',
+        bg === 'white' && 'space-section--white',
+        bg === 'yellow' && 'space-section--yellow',
+        bg === 'blue' && 'space-section--blue',
         className
       )}
     >

@@ -1,6 +1,30 @@
 'use client';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
-import { Button } from '@/components/ui/Button';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
-export function Hero(){ const { t } = useTranslation();return <section className="relative flex flex-col justify-center pt-28 pb-10 px-5 sm:px-8 lg:min-h-[85svh] lg:pt-36 lg:pb-20 bg-gradient-to-b from-white via-bg-warm to-bg-section overflow-hidden"><div className="absolute top-20 right-0 w-72 h-72 bg-billy-yellow/15 rounded-full blur-3xl"/><div className="mx-auto max-w-[1200px] w-full grid lg:grid-cols-2 gap-8 lg:gap-16 items-center relative"><div><div className="flex flex-wrap gap-2 mb-6">{[t('中国 ↔ 韩国'),t('产品 · 数据 · 市场')].map(label=><span key={label} className="rounded-full bg-billy-yellow-light px-3.5 py-1.5 text-xs font-semibold">{label}</span>)}</div><h1 className="text-[clamp(2rem,8.5vw,3.25rem)] lg:text-[clamp(3rem,4.6vw,4.25rem)] leading-[1.35] mb-8 text-balance">{t("跨越市场边界，")}<br/>{t("发现下一次")}<br/><span className="text-billy-yellow-dark">{t("合作机会。")}</span></h1><p className="text-base sm:text-lg text-text-secondary leading-[1.9] mb-8 max-w-lg">{t("从健身科技到具身智能，连接中国企业与韩国市场。先了解真实需求，再一起评估产品、数据与本地业务的合作可能。")}</p><div className="flex flex-wrap gap-2 mb-8">{['FINEFIT','Physical AI',t('韩国市场拓展')].map(t=><span key={t} className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs">{t}</span>)}</div><Button className="w-full sm:w-auto min-h-14" size="lg" onClick={()=>{trackEvent('hero_cta_click');document.getElementById('lead-form')?.scrollIntoView({behavior:'smooth'});}}>{t("开始合作交流 ↗")}</Button><p className="mt-4 text-sm leading-relaxed text-text-secondary">{t("从一份简短需求说明开始。")}</p></div><div className="relative rounded-[28px] lg:rounded-[36px] bg-text-primary text-white p-6 sm:p-8 lg:p-12 shadow-xl"><p className="text-xs tracking-[.2em] text-white/60 mb-7 lg:mb-14">{t('下一步合作的桥梁')}</p><div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3 items-center mb-7 lg:mb-12"><div className="min-w-0 last:text-end"><strong className="block text-2xl lg:text-3xl leading-snug text-balance">{t("中国")}</strong><p className="text-xs mt-3 text-white/60">CHINA</p></div><ArrowUpRight className="h-7 w-7 text-billy-yellow rtl:-scale-x-100" aria-hidden="true"/><div className="min-w-0 last:text-end"><strong className="block text-2xl lg:text-3xl leading-snug text-balance">{t("韩国")}</strong><p className="text-xs mt-3 text-white/60">KOREA</p></div></div><div className="space-y-3">{[t("01 / 健身科技与产品渠道"),t("02 / 机器人训练数据需求"),t("03 / 韩国市场与技术合作")].map(t=><div key={t} className="rounded-2xl border border-white/15 px-4 py-4 lg:px-5 lg:py-4 text-sm leading-[1.7]">{t}</div>)}</div><p className="mt-6 lg:mt-8 text-xs text-white/50">{t('了解需求，探索合作，建立连接。')}</p></div></div></section>;}
+import { SpaceScene } from './SpaceScene';
+
+export function Hero() {
+  const { t, path } = useTranslation();
+  return <section className="space-hero">
+    <SpaceScene/>
+    <div className="space-hero-content">
+      <div className="space-eyebrow"><span className="space-status-dot"/>{t('中国 ↔ 韩国')}<span className="space-eyebrow-divider"/>{t('产品 · 数据 · 市场')}</div>
+      <h1 className="space-hero-title">{t('跨越市场边界，')}<br/>{t('发现下一次')}<br/><span>{t('合作机会。')}</span></h1>
+      <p className="space-hero-description">{t('从健身科技到具身智能，连接中国企业与韩国市场。先了解真实需求，再一起评估产品、数据与本地业务的合作可能。')}</p>
+      <div className="space-hero-actions">
+        <a className="space-button" href="#lead-form" onClick={()=>trackEvent('hero_cta_click')}><span>{t('开始合作交流 ↗').replace(/↗/g, '').trim()}</span><span className="space-button-icon"><ArrowUpRight aria-hidden="true"/></span></a>
+        <a className="space-text-link" href="#opportunities">{t('合作方向')}<ArrowDown className="h-4 w-4" aria-hidden="true"/></a>
+      </div>
+      <p className="space-hero-note">{t('从一份简短需求说明开始。')}</p>
+    </div>
+    <div className="space-hero-bottom">
+      <p className="space-hero-caption">{t('下一步合作的桥梁')}</p>
+      <div className="space-track-nav">{[
+        ['finefit',t('01 / 健身科技与产品渠道')],
+        ['physical_ai_data',t('02 / 机器人训练数据需求')],
+        ['korea_entry',t('03 / 韩国市场与技术合作')],
+      ].map(([track,label])=><a key={track} href={path(`/?track=${track}#lead-form`)}><span>{label}</span><ArrowUpRight className="h-5 w-5 shrink-0" aria-hidden="true"/></a>)}</div>
+    </div>
+  </section>;
+}

@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
   const currentUrl = useSyncExternalStore(subscribeLocation, readLocation, () => pathname);
   const { locale, t } = useTranslation();
-  return <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-text-primary/10 bg-white px-2 text-text-primary">
+  return <div className="locale-switcher flex shrink-0 items-center gap-1.5 rounded-full border border-text-primary/10 bg-white px-2 text-text-primary">
     <Globe2 aria-hidden="true" className="h-4 w-4 shrink-0" />
     <select aria-label={t('语言选择')} value={locale}
       className="min-h-11 w-[112px] cursor-pointer bg-transparent pe-1 text-sm font-semibold sm:w-[138px]"
