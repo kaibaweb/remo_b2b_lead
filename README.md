@@ -1,198 +1,53 @@
-# 중국 리드봇 | REMO China B2B Lead Bot
+# REMO B2B Lead — Asia Physical AI Commercial Network
 
-공식 저장소: [kaibaweb/remo_b2b_lead](https://github.com/kaibaweb/remo_b2b_lead)
+중국 휴머노이드 · Physical AI(VLA, 로봇핸드, 센서) 기업 대상 B2B 리드 소싱, 양방향 제안(Dual-Offer), 인바운드 접수 및 Google Apps Script(GAS) 자동 발송 시스템입니다.
 
-웹 랜딩·문의 관리자와 Python 리드봇 코드는 모두 이 저장소의 `main`에서 관리합니다.
+## 1. 사업 전략 및 포지셔닝 (CHTF 2026 선전 연계)
 
-**중국 기업을 찾고, 연락처와 사업 수요를 검증해 중국어 제안과 상담·미팅으로 연결하는 B2B 영업 리드봇입니다.**
+* **브랜드 포지셔닝:** `Asia Physical AI Commercial Network` (具身智能数据合作 · 跨境市场拓展 · 机器人系统集成)
+* **양방향 제안 구조 (Dual-Offer):**
+  * **Offer A (Data Supply):** 한국 및 아시아 실환경 다차원 비정형 데이터 + REMO 3D 모션/합성 데이터 공급
+  * **Offer B (Market Entry & SI):** 중국 로봇의 한국/아시아 총판, 유료 PoC 추진, 로컬 시스템 통합(SI) 및 AS 지원
+* **타겟 모수 (총 800개사):**
+  * 중국 휴머노이드 & Embodied AI (250)
+  * 로봇핸드, 촉각 센서, VLA 데이터 (150)
+  * 산업·물류·서비스 로봇 OEM (150)
+  * 중국 수출/SI 파트너 (100)
+  * 한국 바이어 및 로봇 SI사 (100)
+  * 아시아(싱가포르/대만 등) 파트너 (50)
 
-기업 검색부터 출처 확인, 중복 제거, 사업별 분류, 제안 초안 작성, 회신 기록까지 하나의 흐름으로 관리합니다. 회신 성과를 다음 검색의 우선순위에 반영해 유효한 리드를 누적하는 것이 목표입니다.
+## 2. 하이브리드 자동화 아키텍처
 
-## 랜딩페이지 · malang.best 구조 재사용
+```
+[Inbound (고객 방문)]
+  └─ Next.js 랜딩페이지 (Vercel: remob2blead.vercel.app)
+       ├─ Firestore: 인바운드 문의 접수 저장 (remo_inbound_leads)
+       ├─ Resend: 고객 확인 메일 자동 발송
+       └─ Telegram: 신규 문의 실시간 알림
 
-**malang.best의 Next.js 랜딩과 문의·관리 시스템을 재사용하고, 공개 콘텐츠를 REMO 중국 B2B용으로 교체했습니다.** 기존 말랑이 상품·고객 사례·이미지·카카오톡 링크·연락처·실제 고객 데이터·비밀키는 가져오지 않았습니다.
-
-- 유지한 시스템: 섹션형 랜딩, 고정 CTA, 문의 폼, UTM 기록, Firebase 관리자 로그인, 문의 상태·메모·CSV, 영상·확인 메일 템플릿 관리, Resend 확인 메일·Telegram 알림.
-- 바꾼 콘텐츠: 중국어 브랜드·소개·협력 방향·문의·개인정보 안내. FINEFIT, Physical AI 데이터 수요, 한국 진출 지원을 구분합니다.
-- 리모 전용 Firestore: `remo_inbound_leads` / `remo_site_settings`. 기존 말랑 컬렉션과 분리했습니다.
-- 보완: 서버의 동의·입력 검증, 미설정 관리자 접근 차단, 알림 실패에도 문의 보존, 실제 발송 여부와 접수 성공 구분, CSV 수식 방어.
-
-### 실행
-
-```bash
-npm ci
-cp .env.example .env.local
-npm run dev
-# 프로덕션 빌드
-npm run build
-npm start
+[Outbound (우리가 발굴 및 선제안)]
+  ├─ 로컬 안티그래비티 (remo_lead Python CLI): 중국 기업 데이터 소싱 & 스코어링
+  └─ Google Apps Script (ops/gas/Code.gs):
+       ├─ 구글 시트 원장 관리 (Config, SourcingPool, Queue, DraftBodies, Suppression)
+       ├─ remo@boam.tech 계정으로 5분 간격 사람처럼 순차 발송 (1일 50건)
+       ├─ 수신함 회신·문의 상시 감시 및 중문 웰컴 양식 자동 답장
+       └─ Telegram: 발송 배치 보고(🔵) 및 기업 회신 도착(🟢) 실시간 알림
 ```
 
-Node.js 24를 사용합니다. 환경변수가 없어도 소개 페이지 빌드는 가능하며, 관리자·문의 접수는 별도 설정이 필요합니다. `INBOUND_ENABLED=false`가 기본이며, 미설정 상태의 문의를 성공 처리하지 않습니다.
+## 3. 디렉토리 구조
 
-### 한국어 · 중국어 페이지
-
-- 중국어: `/`, `/contact`, `/privacy` (기존 주소 유지)
-- 한국어: `/ko`, `/ko/contact`, `/ko/privacy`
-- 상단의 `中文 / 한국어`로 같은 페이지의 언어를 전환합니다. 쿼리 매개변수와 해시를 유지하므로 협력 분야 선택·캠페인 유입 정보가 보존됩니다.
-- 화면 구조와 문의 API는 공유하며, 한국어 문구는 `src/lib/ko.json`에서 관리합니다. 한국어 문의 검증과 오류 안내도 제공합니다.
-- 언어별 루트 레이아웃에서 HTML 언어와 검색·공유 메타데이터를 설정합니다. 관리자 URL과 문의 수집·동의 정책은 동일합니다.
-
-### Vercel에 가져오기
-
-이번 작업은 **GitHub에 소스와 설정을 푸시**하는 범위입니다. Vercel 직접 배포·프로젝트 생성은 하지 않았습니다. 실제 접속 URL은 사용자가 가져오기·배포 후 확인해야 합니다.
-
-| 항목 | 설정 |
-|---|---|
-| 저장소 | `kaibaweb/remo_b2b_lead` |
-| Production Branch | `main` |
-| Root Directory | 저장소 루트 |
-| Framework Preset | Next.js |
-| Install Command | `npm ci` |
-| Build Command | `npm run build` |
-| Output Directory | 기본값 — 별도 지정하지 않음 |
-| 배포 설정 | [`vercel.json`](vercel.json) |
-| 랜딩 | [`src/components/landing/LandingPage.tsx`](src/components/landing/LandingPage.tsx) |
-| 문의·개인정보 | `/contact`, `/privacy` |
-| 관리자 | `/admin/login` → `/admin` |
-
-Vercel에서 **Add New → Project → 저장소 Import → Deploy** 순서로 진행합니다. 저장소가 목록에 없다면 Vercel GitHub 앱에 해당 저장소 접근을 허용합니다.
-
-### 문의·관리자 환경변수
-
-`.env.example`의 빈 항목에 리모 운영 값을 설정합니다. Vercel에는 Project Settings → Environment Variables에서 등록하고 재배포합니다. **말랑 계정의 키를 자동 복제하거나 실제 발송을 실행하지 않습니다.**
-
-| 기능 | 필요한 환경변수 |
-|---|---|
-| 문의 저장 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` |
-| 관리자 로그인 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `ADMIN_EMAIL` |
-| 접수 확인 메일 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL` |
-| 담당자 Telegram 알림 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
-| 선택 공개 연락처 | `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_WECHAT_ID` |
-| 운영 접수 활성화 | Firebase·개인정보 안내를 확인한 뒤 `INBOUND_ENABLED=true` |
-
-관리자는 Firebase Authentication의 Email/Password 사용자를 생성하고 이메일을 인증한 뒤 `ADMIN_EMAIL`과 일치시켜야 합니다. 클라이언트에서 Firestore로 직접 접근하지 않으므로 Firestore Rules는 클라이언트 읽기·쓰기를 허용할 필요가 없습니다. Firebase Authorized domains에 실제 Vercel 도메인을 등록합니다. 설정 변경 후 재배포해야 공개 환경변수도 반영됩니다.
-
-문의 데이터가 먼저 저장된 뒤 알림을 실행합니다. 알림 미설정·실패 시에도 접수된 문의는 보존하고 알림 상태를 기록합니다. 접수 동의는 해당 문의 응대용이며 아웃바운드 광고 동의로 전환하지 않습니다. Python 아웃바운드 DB와 웹 인바운드 CRM은 별도이며 자동 동기화하지 않습니다.
-
-검증: `npm run build`, `npm run lint`, `npm run test:web`. 실제 Firebase·메일·Telegram 원격 연동은 환경변수 설정 후 별도로 확인해야 합니다.
-
-## 주요 기능
-
-- **중국 기업 소싱:** 사업별 검색어로 잠재 고객·유통사·협력사 후보를 수집합니다.
-- **근거·연락처 검증:** 출처 URL·확인일·원문과 공개 업무 연락처를 저장하고 검토합니다.
-- **사업 기회 분류:** FINEFIT 판매, Physical AI 데이터 수요, 한국 진출 지원을 분리합니다.
-- **중국어 제안 초안:** 회사와 제안 트랙에 맞는 제목·본문·미팅 CTA를 생성합니다.
-- **영업 이력 관리:** 회신·미팅·견적 요청을 기록하고 중복 연락과 수신거부를 관리합니다.
-- **소싱 개선:** 검색어별 회신 성과에 따라 다음 조사 순서를 조정합니다.
-- **운영 리포트:** 후보·검증 리드·제안 초안·발송 상태를 HTML·JSON·CSV로 확인합니다.
-
-Codex가 조사·판단을 맡고, Python 실행기가 데이터 저장과 실행 한도를 관리합니다. Python 3.11 이상이면 추가 런타임 패키지 없이 실행됩니다. 실제 검색과 메일 발송에는 별도의 API 연결이 필요하며, 메일 발송은 기본 꺼져 있습니다.
-
-## 사업별 퍼널
-
-| 트랙 | 발굴 대상 | 검증할 수요 |
-|---|---|---|
-| `finefit` | 피트니스 체인 본사, 재활·운동건강 기관, 장비 유통사 | FINEFIT Mirror 도입·유통 |
-| `physical_ai_data` | 휴머노이드·구체화 AI·로봇 기업 | 훈련 데이터, 실패·복구, 사람 동작 신호 |
-| `korea_entry` | 한국 진출을 검토하는 중국 로봇 기업 | 총판·유통망·SI·유지보수 파트너 |
-
-같은 회사라도 사업 기회는 별도로 저장합니다. 캠페인 내 동일 수신자 발송은 트랙을 넘어 한 번만 허용합니다. SNS 운영 대신 직접 리드 소싱을 중심으로 하며, 중국어 랜딩과 문의 CRM을 포함하며, 블로그 자동 발행은 현재 구현 범위에 포함되지 않습니다.
-
-## 바로 실행
-
-새로 내려받을 때:
-
-```bash
-git clone https://github.com/kaibaweb/remo_b2b_lead.git
-cd remo_b2b_lead
 ```
-
-기존 Git 작업 사본의 주소를 바꿀 때:
-
-```bash
-git remote set-url origin https://github.com/kaibaweb/remo_b2b_lead.git
-git remote -v
+remo_b2b_lead/
+├── ops/
+│   └── gas/
+│       ├── Code.gs       # REMO GAS 통합 자동 발송·소싱·회신감시 엔진
+│       └── README.md     # GAS 원장 시트 및 트리거 가이드
+├── remo_lead/            # Python CLI 소싱 & 스코어링 패키지
+│   ├── cli.py
+│   ├── core.py
+│   └── providers.py
+├── src/                  # Next.js 웹 CRM & 랜딩페이지 프론트엔드
+│   ├── app/
+│   └── lib/              # Firebase, Resend, Telegram 클라이언트
+└── config.example.json
 ```
-
-프로젝트 실행:
-
-```bash
-cp config.example.json config.local.json
-python -m remo_lead --config config.local.json init
-python -m remo_lead --config config.local.json doctor
-python -m remo_lead --config config.example.json demo
-python -m unittest discover -s tests -v
-```
-
-`demo`는 **가상 회사 1개·사업 기회 2개·중국어 초안 2개**, 메모리 DB, 외부 요청 0건으로 동작합니다. 운영 DB에 가상 리드나 가상 수신동의를 쓰지 않습니다. `doctor`는 환경변수 존재 여부만 확인하며, API 접근 성공을 뜻하지 않습니다.
-
-## 운영 순서
-
-```bash
-# 가설·검색어: 3개 사업 트랙, 초기 검색어 9개
-python -m remo_lead plan
-
-# 실제 검색: BRAVE_SEARCH_API_KEY가 설정된 경우에만, 1회 최대 3요청
-python -m remo_lead discover
-python -m remo_lead list candidates
-
-# 실제 출처를 조사하고 JSON으로 정리. 한 파일 최대 20개 회사
-python -m remo_lead import private/companies.json
-python -m remo_lead list evidence
-python -m remo_lead verify evidence 1 --operator actual-reviewer
-python -m remo_lead verify contacts 1 --operator actual-reviewer
-
-# 자격 분류·중국어 초안·HTML/JSON/CSV 리포트. 발송 없음
-python -m remo_lead cycle
-python -m remo_lead draft 1 1
-python -m remo_lead dispatch 1
-```
-
-기본 설정 파일은 `config.local.json`, DB는 `.state/remo.sqlite3`입니다. 다른 위치는 전역 인자 `--config`, `--db`로 **명령어 앞에** 지정합니다. 상대 경로는 현재 디렉터리 기준입니다. 서버에서는 영속 디스크의 절대 DB 경로를 사용하고, 실행 중인 DB의 백업은 SQLite backup API로 만드세요.
-
-검색 결과는 `candidates`에만 저장합니다. 공식 홈페이지·연락처 페이지를 직접 읽고 회사와 연결한 뒤 import해야 합니다. import된 `verified_by` 필드는 무시됩니다. 실제 검토자가 출처를 확인한 후 별도 `verify` 명령으로 검증합니다. 출처 URL과 원문에 정확한 이메일이 있어야 초안이 생성됩니다.
-
-## 하네스 루프
-
-1. `plan`: 초기 가설과 검색어, 시도 수, 긍정·부정 회신 기반 우선순위를 반환합니다.
-2. `discover`: Brave 검색을 호출하고 후보 URL·제목·스니펫을 저장합니다. 검색 한 번 최대 20개 결과, 요청 예산 기본 3회입니다. 실패는 5분~6시간 backoff, 성공 검색어는 24시간 cooldown입니다.
-3. Codex 조사와 `import/verify`: 회사·연락처·근거를 분리해 저장하고 사람이 확인합니다. 추정 이메일과 검색 스니펫 자동 승격은 없습니다.
-4. `rank`: 검증 근거와 키워드 일치를 설명 가능한 규칙으로 점수화합니다. 점수는 실제 구매 의사의 확률이 아닙니다.
-5. `cycle/draft`: 설정된 사업 제안·한 가지 CTA로 중국어 초안을 생성합니다. 공급 능력·매출·독점권·단가를 창작하지 않습니다.
-6. `reply`: 정확히 일치하는 수신자의 회신을 기록합니다. 미팅·RFQ 상태를 구분하고, 수신거부·부정 회신·반송은 후속 발송을 차단합니다.
-7. 검색어별 검증된 회신 성과가 다음 `plan` 우선순위에 반영됩니다. 새 가설 확장은 Codex가 근거를 검토해 config에 추가합니다.
-
-이것은 모델 자체 학습이나 무제한 자율 크롤러가 아닙니다. Codex가 조사·판단을 맡고 실행기가 상태와 예산·중복 방지를 보장합니다. `AGENTS.md`가 다음 Codex 작업의 실행 지침입니다.
-
-## 실제 메일 연결
-
-실제 발송은 기본 꺼져 있습니다. 공개 이메일은 수신동의로 취급하지 않습니다. 현재 정책은 **문서화된 명시적 수신동의**만 지원합니다. 다른 접촉 근거를 쓰려면 별도 정책 구현·검토가 필요합니다.
-
-1. 실제 `sender_name`, `sender_email`, `sender_address`를 설정합니다. 제공받은 경우에만 `landing_url`, `wechat_id`를 입력합니다.
-2. 운영 환경에서 Google OAuth access token을 `GMAIL_ACCESS_TOKEN`으로 제공합니다. 이 코드는 OAuth 앱 등록·로그인·토큰 갱신을 수행하지 않습니다. `gmail.send`와 `gmail.metadata` 범위가 필요합니다. Gmail 주 계정과 발신자가 정확히 같아야 하며 Send As 별칭은 미지원입니다.
-3. `permit private/permission.json`으로 실제 수신동의 근거를 기록합니다.
-4. 정확한 초안을 확인하고 `approve DRAFT_ID --sha256 EXACT_SHA --operator NAME`으로 24시간 유효한 승인을 저장합니다. CLI 승인 기록은 로컬 운영자 통제이며 사용자 인증이나 전자서명이 아닙니다.
-5. 사용자가 해당 수신자·문안의 발송을 지시한 범위에서 `live_enabled: true`와 `dispatch DRAFT_ID --live`를 함께 사용합니다.
-
-초안·발신 정보·근거가 바뀌거나 만료되면 승인은 무효입니다. 발송 직전에 suppression·동의·검토·일일 한도·Gmail 계정 일치를 검사합니다. DB에서 수신자를 원자적으로 예약해 중복 발송을 막습니다. `ACCEPTED`는 Gmail 접수이며 실제 도착·열람이 아닙니다. 타임아웃·모호한 결과는 `UNKNOWN`, 중단된 예약은 `SENDING` 상태로 남고 **자동 재발송하지 않습니다**. Gmail 보낸편지함에서 `Message-ID: remo-<draft SHA>@<sender domain>`으로 사람이 대조해야 합니다.
-
-현재 회신은 검토된 JSON으로 가져옵니다. Gmail 회신 자동 폴링·토큰 갱신·Telegram 전송·WeChat 자동 발송·첨부파일·자동 후속 메일은 구현하지 않았습니다. ChatGPT에 연결된 Gmail과 서버 실행용 Gmail 자격증명은 별도입니다.
-
-## 저장·리포트·스케줄
-
-SQLite: companies / evidence / contacts / opportunities / queries / candidates / drafts / permissions / approvals / deliveries / replies / suppression / audit. 영업 진행은 DISCOVERED → QUALIFIED → CONTACTED → REPLIED / MEETING / RFQ, 거절·반송·수신거부를 따로 기록합니다. 견적·계약 엔터티와 금액 정산은 후속 확장입니다.
-
-`report` 또는 `cycle`은 `reports/latest/report.html`, `report.json`, `opportunities.csv`를 생성합니다. HTML은 외부 스크립트·추적 픽셀 없이 로컬에서 열 수 있으며 원문은 이스케이프됩니다. CSV는 스프레드시트 수식 주입을 방지합니다. 보고서에는 영업 연락처가 포함되므로 접근을 제한하세요. 기본 DB·보고서·private 파일·환경파일은 Git에서 제외됩니다.
-
-스케줄러는 설치·활성화하지 않습니다. 필요할 때 운영 서버의 작업 스케줄러로 `cycle --search`를 실행하면 한 사이클 후 종료됩니다. 이 명령은 발송하지 않습니다. 배포 후 검색 API 허용 도메인·토큰·영속 저장소를 별도로 검증해야 합니다.
-
-## 검증과 참고
-
-```bash
-python -m unittest discover -s tests -v
-python -m remo_lead --config config.example.json demo
-python -m compileall -q remo_lead
-```
-
-CI는 Python 3.11·3.12·3.13에서 오프라인 검증을 수행합니다. 샘플 입력은 `examples/`, 기획 출처와 미확정 사항은 [docs/DECISIONS.md](docs/DECISIONS.md), 상세 운영은 [docs/OPERATIONS.md](docs/OPERATIONS.md)에 있습니다.
