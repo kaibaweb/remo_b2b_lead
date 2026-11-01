@@ -55,10 +55,13 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
           assert.ok((await page.locator('#about-remo').innerText()).includes(catalog['REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。']));
           assert.equal(await page.locator('#about-remo a').getAttribute('href'),'https://www.remo.re.kr/');
           assert.equal(await page.locator('#about-remo').evaluate(node=>!!node.closest('details')),false);
-          assert.equal(await page.locator('#technical-evidence article').count(),3);
-          assert.ok((await page.locator('#technical-evidence').innerText()).includes(catalog['来源：newtechremo 公开技术文档']));
-          for (const href of await page.locator('#technical-evidence a').evaluateAll(nodes=>nodes.map(node=>node.href))) {
-            assert.ok(href.startsWith('https://github.com/newtechremo/RemoAPIDocsEng/blob/6d50bf552d29d20dd07a629623873b064b6e61ba/'));
+          assert.equal(await page.locator('#company-evidence .company-evidence-grid article').count(),3);
+          assert.ok((await page.locator('#company-evidence').innerText()).includes(catalog['信任，来自实际应用。']));
+          assert.equal(await page.locator('.evidence-slide').count(),3);
+          assert.equal(await page.locator('#global-presence a').count(),2);
+          assert.ok((await page.locator('.meeting-purpose').innerText()).includes(catalog['我们将赴深圳参加 CHTF 2026，寻找数据、韩国市场与 FINEFIT 分销合作伙伴。']));
+          for (const href of await page.locator('#company-evidence a').evaluateAll(nodes=>nodes.map(node=>node.href))) {
+            assert.ok(href.startsWith('https://'));
           }
           const email = new URL(await page.locator('#lead-form .space-button').getAttribute('href'));
           assert.equal(email.protocol,'mailto:');

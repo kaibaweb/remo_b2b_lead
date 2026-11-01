@@ -470,3 +470,43 @@ html[dir="rtl"] .landing-content .text-center { text-align: center; }
   .meeting-site .company-evidence h2 { font-size: 23px; }
   .company-evidence-grid article { padding: 20px; }
 }
+
+/* Sales proof: photos interrupt the vertical rhythm without hiding the offers. */
+.company-identity { margin-top: 42px; margin-bottom: 0; }
+.evidence-gallery { margin-top: 40px; min-width: 0; }
+.evidence-gallery-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 20px; }
+.evidence-gallery-heading h3, .exhibition-proof > h3 { font-size: clamp(21px,2.5vw,28px); line-height: 1.5; font-weight: 600; }
+.evidence-gallery-heading p { font-size: 13px; line-height: 1.8; color: #b8b0c7; margin-top: 8px; }
+.evidence-gallery-heading button { flex-shrink: 0; border: 1px solid #ffffff35; padding: 10px 16px; min-height: 44px; border-radius: 999px; font-size: 12px; color: #ddd5ea; }
+.evidence-rail { display: flex; gap: 20px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: #c6f78455 transparent; padding-bottom: 18px; }
+.evidence-slide { flex: 0 0 min(82vw,420px); min-width: 0; scroll-snap-align: start; border: 1px solid #ffffff24; border-radius: 22px; overflow: hidden; background: #ffffff04; }
+.evidence-slide-image { position: relative; aspect-ratio: 16 / 10; background: #16151e; }
+.evidence-slide-image img { object-fit: cover; }
+.evidence-slide-copy { padding: 24px; }
+.evidence-slide-copy h4 { font-size: 20px; line-height: 1.5; color: #f6f1fd; font-weight: 600; }
+.evidence-slide-copy p { font-size: 15px; line-height: 1.9; color: #c0b7cf; margin-top: 12px; }
+.evidence-slide-copy span { display: inline-block; color: #c6f784; font-size: 13px; margin-top: 18px; }
+.exhibition-proof { margin-top: 32px; }
+.exhibition-proof > h3 { margin-bottom: 16px; }
+.exhibition-proof > a { display: grid; grid-template-columns: 160px minmax(0,1fr) 16px; align-items: center; gap: 20px; border-top: 1px solid #ffffff20; padding-block: 20px; line-height: 1.8; font-size: 14px; }
+.exhibition-proof strong { color: #c6f784; }
+.exhibition-proof span { color: #c0b7cf; }
+.meeting-purpose { max-width: 800px; margin: -8px auto 36px; padding: 24px; border: 1px solid #c6f78430; border-radius: 18px; background: #c6f78405; color: #d8d1e3; font-size: 16px; line-height: 1.9; text-align: center; }
+.meeting-purpose p + p { margin-top: 12px; color: #b6adc6; font-size: 14px; }
+.meeting-request .meeting-email-button { min-height: 64px; font-size: 16px; box-shadow: 0 0 36px #c6f78413; }
+.meeting-direct-contact .business-wechat { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.meeting-direct-contact .business-copy-button { width: 100%; min-height: 64px; border: 1px solid #c6f78488; border-radius: 999px; justify-content: center; font-size: 16px; color: #c6f784; }
+.meeting-direct-contact .business-copy-status { min-height: 22px; }
+.public-site :is(.evidence-slide,.evidence-gallery button,.exhibition-proof a,.space-button,.business-copy-button):focus-visible { outline: 3px solid #c6f784; outline-offset: 4px; }
+@media(max-width:640px) {
+  .evidence-gallery-heading { align-items: flex-start; gap: 12px; }
+  .evidence-gallery-heading button { padding-inline: 12px; max-width: 110px; white-space: normal; }
+  .evidence-slide-copy { padding: 20px; }
+  .exhibition-proof > a { grid-template-columns: minmax(0,1fr) 16px; gap: 8px 12px; }
+  .exhibition-proof strong { grid-column: 1; }
+  .exhibition-proof span { grid-column: 1; }
+  .exhibition-proof svg { grid-column: 2; grid-row: 1 / 3; }
+  .meeting-purpose { padding: 20px; text-align: start; }
+  .meeting-request .meeting-email-button { font-size: 15px; }
+}
+@media(prefers-reduced-motion:reduce) { .evidence-rail { scroll-behavior: auto; } }
