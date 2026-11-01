@@ -55,6 +55,11 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
           assert.ok((await page.locator('#about-remo').innerText()).includes(catalog['REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。']));
           assert.equal(await page.locator('#about-remo a').getAttribute('href'),'https://www.remo.re.kr/');
           assert.equal(await page.locator('#about-remo').evaluate(node=>!!node.closest('details')),false);
+          assert.equal(await page.locator('#technical-evidence article').count(),3);
+          assert.ok((await page.locator('#technical-evidence').innerText()).includes(catalog['来源：newtechremo 公开技术文档']));
+          for (const href of await page.locator('#technical-evidence a').evaluateAll(nodes=>nodes.map(node=>node.href))) {
+            assert.ok(href.startsWith('https://github.com/newtechremo/RemoAPIDocsEng/blob/6d50bf552d29d20dd07a629623873b064b6e61ba/'));
+          }
           const email = new URL(await page.locator('#lead-form .space-button').getAttribute('href'));
           assert.equal(email.protocol,'mailto:');
           assert.equal(email.pathname,'remo@boam.tech');

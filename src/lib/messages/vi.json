@@ -276,5 +276,15 @@
   "认识 REMO": "Tìm hiểu REMO",
   "REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。": "REMO là công ty công nghệ AI tập trung vào phân tích tư thế, dáng đi và chuyển động thể thao của con người.",
   "本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。": "Các sản phẩm REMO được giới thiệu tại đây gồm FINEFIT AI Mirror, FINEFIT Zone và FINEFIT SIMPro.",
-  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | AI phân tích chuyển động con người và sản phẩm FINEFIT"
+  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | AI phân tích chuyển động con người và sản phẩm FINEFIT",
+  "先看能核对的技术资料。": "Xem chi tiết kỹ thuật làm cơ sở trao đổi.",
+  "公开技术文档": "Tài liệu kỹ thuật công khai",
+  "正面与侧面骨架分析": "Phân tích khung xương từ phía trước và bên hông",
+  "公开文档列出关节关键点及正面、侧面图像分析结构。": "Tài liệu đã công bố mô tả các điểm mốc khớp và cấu trúc phân tích hình ảnh từ phía trước và bên hông.",
+  "步态分析输出": "Đầu ra phân tích dáng đi",
+  "结果文档列出步频、步速、步长等指标。": "Đặc tả kết quả liệt kê nhịp bước, tốc độ đi và độ dài bước.",
+  "高尔夫挥杆角度": "Góc trong động tác swing golf",
+  "接口文档说明膝部、骨盆与肩部角度随时间变化的输出。": "Tài liệu giao diện mô tả đầu ra góc đầu gối, xương chậu và vai theo thời gian.",
+  "查看公开文档": "Đọc tài liệu công khai",
+  "来源：newtechremo 公开技术文档": "Nguồn: tài liệu kỹ thuật công khai do newtechremo công bố"
 }

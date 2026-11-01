@@ -453,3 +453,20 @@ html[dir="rtl"] .landing-content .text-center { text-align: center; }
   .meeting-site .company-identity h2 { font-size: 21px; }
   .meeting-company-byline { font-size: 12px; }
 }
+
+/* Verifiable, attributed technical sources rather than unsupported credentials. */
+.company-evidence { margin-top: 42px; padding-top: 28px; border-top: 1px solid #ffffff1c; }
+.company-evidence .business-eyebrow { margin-bottom: 12px; }
+.meeting-site .company-evidence h2 { font-size: 25px; line-height: 1.5; margin-bottom: 22px; }
+.company-evidence-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.company-evidence-grid article { display: flex; flex-direction: column; padding: 22px; border-radius: 16px; border: 1px solid #ffffff18; background: #ffffff02; min-width: 0; }
+.company-evidence-grid h3 { font-size: 17px; font-weight: 600; line-height: 1.6; margin-bottom: 12px; }
+.company-evidence-grid p { color: #b8b0c7; font-size: 15px; line-height: 1.85; margin-bottom: 18px; }
+.company-evidence-grid a { margin-top: auto; align-self: flex-start; font-size: 13px; color: #c6f784; text-align: start; }
+.company-evidence-source { font-size: 11px; color: #a69bb9; line-height: 1.85; margin-top: 14px; }
+@media(max-width:640px) {
+  .company-evidence { margin-top: 32px; }
+  .company-evidence-grid { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .meeting-site .company-evidence h2 { font-size: 23px; }
+  .company-evidence-grid article { padding: 20px; }
+}

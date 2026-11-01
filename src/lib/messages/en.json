@@ -276,5 +276,15 @@
   "认识 REMO": "Meet REMO",
   "REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。": "REMO is an AI technology company focused on human posture, gait and sports-motion analysis.",
   "本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。": "The REMO products featured here include FINEFIT AI Mirror, FINEFIT Zone and FINEFIT SIMPro.",
-  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | Human motion analysis AI and FINEFIT products"
+  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | Human motion analysis AI and FINEFIT products",
+  "先看能核对的技术资料。": "See the technical detail behind the conversation.",
+  "公开技术文档": "Public technical documentation",
+  "正面与侧面骨架分析": "Front and side skeleton analysis",
+  "公开文档列出关节关键点及正面、侧面图像分析结构。": "The published documentation describes joint keypoints and front/side image-analysis structure.",
+  "步态分析输出": "Gait analysis outputs",
+  "结果文档列出步频、步速、步长等指标。": "The result specification lists cadence, gait velocity and step length.",
+  "高尔夫挥杆角度": "Golf swing angles",
+  "接口文档说明膝部、骨盆与肩部角度随时间变化的输出。": "The interface documentation describes knee, pelvis and shoulder angle outputs over time.",
+  "查看公开文档": "Read the public documentation",
+  "来源：newtechremo 公开技术文档": "Source: public technical documentation published by newtechremo"
 }

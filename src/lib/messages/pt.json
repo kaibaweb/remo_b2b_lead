@@ -276,5 +276,15 @@
   "认识 REMO": "Conheça a REMO",
   "REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。": "A REMO é uma empresa de tecnologia de IA focada na análise da postura humana, da marcha e dos movimentos esportivos.",
   "本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。": "Os produtos REMO apresentados aqui incluem FINEFIT AI Mirror, FINEFIT Zone e FINEFIT SIMPro.",
-  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | IA para análise do movimento humano e produtos FINEFIT"
+  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | IA para análise do movimento humano e produtos FINEFIT",
+  "先看能核对的技术资料。": "Confira os detalhes técnicos para preparar nossa conversa.",
+  "公开技术文档": "Documentação técnica pública",
+  "正面与侧面骨架分析": "Análise do esqueleto de frente e de perfil",
+  "公开文档列出关节关键点及正面、侧面图像分析结构。": "A documentação publicada descreve os pontos-chave das articulações e a estrutura de análise de imagens frontais e laterais.",
+  "步态分析输出": "Resultados da análise da marcha",
+  "结果文档列出步频、步速、步长等指标。": "A especificação dos resultados lista cadência, velocidade da marcha e comprimento do passo.",
+  "高尔夫挥杆角度": "Ângulos do swing de golfe",
+  "接口文档说明膝部、骨盆与肩部角度随时间变化的输出。": "A documentação da interface descreve as saídas dos ângulos do joelho, da pelve e do ombro ao longo do tempo.",
+  "查看公开文档": "Consultar a documentação pública",
+  "来源：newtechremo 公开技术文档": "Fonte: documentação técnica pública publicada por newtechremo"
 }

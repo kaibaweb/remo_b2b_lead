@@ -4,6 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
 import { Section, SectionHeadline } from '@/components/ui/Section';
 import { ShortsShowcase } from './ShortsShowcase';
+import { CompanyEvidence } from './CompanyEvidence';
 import { WeChatCopy } from './BusinessContact';
 import { businessContacts, businessEmailHref } from '@/lib/business-contact.mjs';
 import { trackEvent } from '@/lib/analytics';
@@ -31,6 +32,7 @@ export function MeetingOffers({ selected, onChoose }: InterestProps) {
       <h3>{offer.hook}</h3><p className="meeting-offer-who">{offer.who}</p><p className="meeting-offer-delivery">{offer.offer}</p>
       <a className="space-text-link" href="#lead-form" onClick={()=>{onChoose(offer.id);trackEvent('use_case_click',{interest:offer.id});}}>{t('就这个方向约见')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
     </article>)}</div>
+    <CompanyEvidence/>
     <details className="meeting-resources"><summary>{t('产品资料与具体合作范围')}</summary>
       <div id="why-remo"><p className="meeting-resource-heading">{t('先看产品，再谈合作。')}</p><p>FINEFIT AI Mirror · FINEFIT Zone · FINEFIT SIMPro</p><a className="space-text-link" href={businessContacts.remo} target="_blank" rel="noopener noreferrer">{t('查看 REMO 官方产品与企业信息')}<ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true"/></a>
       <ShortsShowcase embedded/>

@@ -276,5 +276,15 @@
   "认识 REMO": "Scoprite REMO",
   "REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。": "REMO è un’azienda di tecnologie IA specializzata nell’analisi della postura umana, dell’andatura e dei movimenti sportivi.",
   "本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。": "I prodotti REMO presentati qui includono FINEFIT AI Mirror, FINEFIT Zone e FINEFIT SIMPro.",
-  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | IA per l’analisi del movimento umano e prodotti FINEFIT"
+  "REMO｜人体动作分析 AI 与 FINEFIT 产品": "REMO | IA per l’analisi del movimento umano e prodotti FINEFIT",
+  "先看能核对的技术资料。": "Scoprite i dettagli tecnici per preparare il nostro incontro.",
+  "公开技术文档": "Documentazione tecnica pubblica",
+  "正面与侧面骨架分析": "Analisi dello scheletro frontale e laterale",
+  "公开文档列出关节关键点及正面、侧面图像分析结构。": "La documentazione pubblicata descrive i punti chiave delle articolazioni e la struttura di analisi delle immagini frontali e laterali.",
+  "步态分析输出": "Risultati dell’analisi dell’andatura",
+  "结果文档列出步频、步速、步长等指标。": "La specifica dei risultati elenca cadenza, velocità dell’andatura e lunghezza del passo.",
+  "高尔夫挥杆角度": "Angoli dello swing di golf",
+  "接口文档说明膝部、骨盆与肩部角度随时间变化的输出。": "La documentazione dell’interfaccia descrive i dati relativi agli angoli di ginocchio, bacino e spalla nel tempo.",
+  "查看公开文档": "Consultate la documentazione pubblica",
+  "来源：newtechremo 公开技术文档": "Fonte: documentazione tecnica pubblica pubblicata da newtechremo"
 }
