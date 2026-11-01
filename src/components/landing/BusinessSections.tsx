@@ -3,6 +3,7 @@ import { ArrowUpRight, Database, Globe2, Shield, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
 import { Section, SectionHeadline } from '@/components/ui/Section';
 import { SectorMarquee } from './SectorMarquee';
+import { ShortsShowcase } from './ShortsShowcase';
 import { BusinessEmailLink, WeChatCopy } from './BusinessContact';
 import { businessContacts } from '@/lib/business-contact.mjs';
 
@@ -69,6 +70,7 @@ export function GlobalPresence() {
       <article className="space-card"><p className="business-channel-brand">REMO<span>↗</span></p><h3>{t('REMO 官方动态')}</h3><p>{t('通过 REMO 官网了解企业、产品与公开活动信息，安排适合您业务的后续交流。')}</p><a className="space-text-link" href={businessContacts.remo} target="_blank" rel="noopener noreferrer">{t('访问 REMO 官网')}<ArrowUpRight aria-hidden="true" className="h-4 w-4"/></a></article>
       <article className="space-card"><p className="business-channel-brand">BOAM<span>↗</span></p><h3>{t('BOAM 全球联络渠道')}</h3><p>{t('BOAM 是独立企业，提供本页外部联络与全球交流入口。')}</p><a className="space-text-link" href={businessContacts.boam} target="_blank" rel="noopener noreferrer">{t('访问 BOAM 官网')}<ArrowUpRight aria-hidden="true" className="h-4 w-4"/></a></article>
     </div>
+    <ShortsShowcase embedded/>
   </Section>;
 }
 
