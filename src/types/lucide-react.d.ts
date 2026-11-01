@@ -14,6 +14,10 @@ declare module 'lucide-react' {
   export const Globe2: LucideIcon;
   export const ArrowUpRight: LucideIcon;
   export const ArrowRight: LucideIcon;
+  export const ArrowDown: LucideIcon;
+  export const Pause: LucideIcon;
+  export const Play: LucideIcon;
+  export const Asterisk: LucideIcon;
   export const Check: LucideIcon;
   export const ChevronDown: LucideIcon;
   export const ChevronRight: LucideIcon;
