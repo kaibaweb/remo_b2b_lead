@@ -151,7 +151,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-[520px] mx-auto"
+        className="max-w-[720px] mx-auto rounded-3xl border border-text-primary/10 bg-white/70 p-5 sm:p-8 lg:p-10"
         noValidate
       >
         {/* Honeypot - hidden from humans */}
@@ -166,9 +166,9 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
           />
         </div>
 
-        <div className="space-y-5">
+        <div className="grid gap-5 sm:grid-cols-2">
           {/* Required fields */}
-          <div><label htmlFor="track" className="block text-[15px] font-semibold mb-2">{t("合作方向")}</label><select id="track" value={selectedTrack || queryTrack || formData.track} onChange={e=>setSelectedTrack(e.target.value)} className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3.5"><option value="finefit">{t("FINEFIT 产品与渠道")}</option><option value="physical_ai_data">{t("机器人训练数据需求")}</option><option value="korea_entry">{t("韩国市场与技术合作")}</option></select></div>
+          <div className="sm:col-span-2"><label htmlFor="track" className="block text-[15px] font-semibold mb-2">{t("合作方向")}</label><select id="track" value={selectedTrack || queryTrack || formData.track} onChange={e=>setSelectedTrack(e.target.value)} className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3.5"><option value="finefit">{t("FINEFIT 产品与渠道")}</option><option value="physical_ai_data">{t("机器人训练数据需求")}</option><option value="korea_entry">{t("韩国市场与技术合作")}</option></select></div>
           <Input
             label={t("公司 / 机构")}
             placeholder={t("例如：机器人研发团队、健身集团")}
@@ -207,6 +207,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
             required
           />
 
+          <div className="sm:col-span-2">
           <Textarea
             label={t("需求说明（选填）")}
             placeholder={t("请简述产品、目标市场、数据需求或方便沟通的时间。")}
@@ -215,15 +216,16 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
             error={errors.message}
             rows={4}
           />
+          </div>
 
           {/* Privacy consent */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 sm:col-span-2">
             <input
               id="privacy-consent"
               type="checkbox"
               checked={formData.privacyConsent}
               onChange={(e) => handleInputChange('privacyConsent', e.target.checked)}
-              className="mt-1 w-5 h-5 rounded border-gray-300 text-billy-yellow focus:ring-billy-yellow accent-billy-yellow cursor-pointer"
+              className="mt-1 w-5 h-5 shrink-0 rounded border-gray-300 text-billy-yellow focus:ring-billy-yellow accent-billy-yellow cursor-pointer"
             />
             <label htmlFor="privacy-consent" className="text-[14px] text-text-secondary leading-relaxed cursor-pointer">
               {t("为处理本次合作咨询，我已阅读并同意")}{' '}
@@ -233,12 +235,12 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
             </label>
           </div>
           {errors.privacyConsent && (
-            <p className="text-[13px] text-accent-red font-medium -mt-3">{errors.privacyConsent}</p>
+            <p className="text-[13px] text-accent-red font-medium -mt-3 sm:col-span-2">{errors.privacyConsent}</p>
           )}
 
           {/* Submit error */}
           {submitError && (
-            <div role="alert" className="rounded-xl bg-red-50 border border-accent-red/20 p-4 text-[14px] text-accent-red font-medium">
+            <div role="alert" className="sm:col-span-2 rounded-xl bg-red-50 border border-accent-red/20 p-4 text-[14px] text-accent-red font-medium">
               {submitError}
             </div>
           )}
@@ -249,7 +251,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
             size="lg"
             fullWidth
             disabled={isSubmitting}
-            className="mt-2"
+            className="mt-2 sm:col-span-2"
           >
             {isSubmitting ? t("提交中…") : t("提交合作需求 →")}
           </Button>

@@ -39,6 +39,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -148,3 +149,6 @@ input, textarea, select {
   font-size: 16px !important; /* Prevent mobile zoom */
 }
 
+
+/* Keep long bilingual labels and URLs within narrow screens. */
+body { overflow-wrap: anywhere; }
