@@ -15,9 +15,6 @@ declare module 'lucide-react' {
   export const ArrowUpRight: LucideIcon;
   export const ArrowRight: LucideIcon;
   export const ArrowDown: LucideIcon;
-  export const Pause: LucideIcon;
-  export const Play: LucideIcon;
-  export const Asterisk: LucideIcon;
   export const Check: LucideIcon;
   export const ChevronDown: LucideIcon;
   export const ChevronRight: LucideIcon;
@@ -39,4 +36,9 @@ declare module 'lucide-react' {
   export const Users: LucideIcon;
   export const Clock: LucideIcon;
   export const LogOut: LucideIcon;
+  export const Mail: LucideIcon;
+  export const Video: LucideIcon;
+  export const Pause: LucideIcon;
+  export const Play: LucideIcon;
+  export const Asterisk: LucideIcon;
 }
