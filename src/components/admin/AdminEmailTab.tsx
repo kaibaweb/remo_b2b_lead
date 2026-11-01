@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from 'firebase/auth';
+import { fetchEmailSettingsDirect, saveEmailSettingsDirect } from '@/lib/firestore-admin-client';
 import { Button } from '@/components/ui/Button';
 
 interface Props {
@@ -18,18 +19,12 @@ export function AdminEmailTab({ user }: Props) {
 
   const fetchEmailSettings = useCallback(async () => {
     try {
-      const token = await user.getIdToken();
-      const res = await fetch('/api/admin/settings/email', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.settings) setEmailSettings(data.settings);
-      }
+      const data = await fetchEmailSettingsDirect();
+      if (data) setEmailSettings(data as typeof emailSettings);
     } catch (e) {
       console.error(e);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     fetchEmailSettings();
@@ -38,13 +33,7 @@ export function AdminEmailTab({ user }: Props) {
   const handleSaveEmailSettings = async () => {
     setSavingEmail(true);
     try {
-      const token = await user.getIdToken();
-      const res = await fetch('/api/admin/settings/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(emailSettings),
-      });
-      if (!res.ok) throw new Error('이메일 설정 저장 실패');
+      await saveEmailSettingsDirect(emailSettings);
       alert('이메일 서식 설정이 저장되었습니다.');
     } catch (e) {
       console.error(e);
@@ -103,4 +92,3 @@ export function AdminEmailTab({ user }: Props) {
     </div>
   );
 }
-

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from 'firebase/auth';
+import { fetchShortsDirect, saveShortsDirect } from '@/lib/firestore-admin-client';
 import { Button } from '@/components/ui/Button';
 
 interface Props {
@@ -15,9 +16,8 @@ export function AdminShortsTab({ user }: Props) {
 
   const fetchShorts = useCallback(async () => {
     try {
-      const res = await fetch('/api/shorts');
-      const data = await res.json();
-      if (data.shorts) setShortsList(data.shorts);
+      const list = await fetchShortsDirect();
+      setShortsList(list);
     } catch (e) {
       console.error(e);
     }
@@ -50,13 +50,7 @@ export function AdminShortsTab({ user }: Props) {
   const handleSaveShorts = async () => {
     setSavingShorts(true);
     try {
-      const token = await user.getIdToken();
-      const res = await fetch('/api/admin/shorts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ shorts: shortsList }),
-      });
-      if (!res.ok) throw new Error('숏츠 저장 실패');
+      await saveShortsDirect(shortsList);
       alert('저장되었습니다.');
     } catch (e) {
       console.error(e);
@@ -113,4 +107,3 @@ export function AdminShortsTab({ user }: Props) {
     </div>
   );
 }
-

@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: only gitkaiba@gmail.com is authorized admin
+    function isAdmin() {
+      return request.auth != null && 
+             request.auth.token.email.lower() == 'gitkaiba@gmail.com';
+    }
+
+    // 1. 회의록 컬렉션: 오직 gitkaiba@gmail.com 관리자만 읽기/쓰기 가능
+    match /remo_admin_notes/{noteId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 2. 인바운드 리드: 랜딩페이지에서 접수(create)는 누구나 가능,
+    //    상세 조회, 상태 변경, 삭제는 오직 gitkaiba@gmail.com 관리자만 가능
+    match /remo_inbound_leads/{leadId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 3. 사이트 공용 설정 (이메일 템플릿, 숏츠 목록):
+    //    공개 페이지에서 표시는 누구나 읽기 가능, 수정은 오직 관리자만 가능
+    match /remo_site_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // 그 외 모든 문서 접근 차단 (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

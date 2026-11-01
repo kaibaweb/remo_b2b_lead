@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from 'firebase/auth';
 import { Lead, LEAD_STATUS_MAP, LeadStatus } from '@/types/lead';
+import { fetchLeadsDirect, updateLeadDirect } from '@/lib/firestore-admin-client';
 import { Button } from '@/components/ui/Button';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { RefreshCw } from 'lucide-react';
 
 interface Props {
   user: User;
@@ -21,28 +23,19 @@ export function AdminLeadsTab({ user }: Props) {
   const [updating, setUpdating] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Manual one-shot fetch (cached until user clicks Refresh)
   const fetchLeads = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await user.getIdToken();
-      const params = new URLSearchParams();
-      if (statusFilter !== 'all') params.set('status', statusFilter);
-      if (search) params.set('search', search);
-
-      const response = await fetch(`/api/admin/leads?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setLeads(data.leads);
-        setCounts(data.counts);
-      }
+      const res = await fetchLeadsDirect(statusFilter, search);
+      setLeads(res.leads);
+      setCounts(res.counts);
     } catch (e) {
-      console.error(e);
+      console.error('[Fetch Leads Direct Error]', e);
     } finally {
       setLoading(false);
     }
-  }, [user, statusFilter, search]);
+  }, [statusFilter, search]);
 
   useEffect(() => {
     fetchLeads();
@@ -51,40 +44,50 @@ export function AdminLeadsTab({ user }: Props) {
   const updateLead = async (leadId: string, data: { status?: LeadStatus; memo?: string }) => {
     setUpdating(true);
     try {
-      const token = await user.getIdToken();
-      await fetch(`/api/admin/leads/${leadId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
+      await updateLeadDirect(leadId, data);
       await fetchLeads();
       if (selectedLead?.id === leadId) {
         setSelectedLead((prev) => (prev ? { ...prev, ...data } : null));
       }
     } catch (e) {
-      console.error(e);
+      console.error('[Update Lead Error]', e);
+      alert('상태 업데이트에 실패했습니다.');
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExportCSV = () => {
     try {
-      const token = await user.getIdToken();
-      const response = await fetch('/api/admin/leads/export', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const blob = await response.blob();
+      const escapeCsv = (val: unknown) => {
+        const str = String(val ?? '');
+        const safe = /^[=+@-]/.test(str) ? `'${str}` : str;
+        return `"${safe.replace(/"/g, '""')}"`;
+      };
+
+      const headers = ['ID', '접수일시', '회사명', '담당자', '연락처', '이메일', '상태', '협력트랙', '문의내용', '유입출처'];
+      const rows = leads.map((l) => [
+        escapeCsv(l.id),
+        escapeCsv(l.createdAt),
+        escapeCsv(l.company),
+        escapeCsv(l.contactName),
+        escapeCsv(l.phone),
+        escapeCsv(l.email),
+        escapeCsv(LEAD_STATUS_MAP[l.status]?.label || l.status),
+        escapeCsv(l.track || ''),
+        escapeCsv(l.message || ''),
+        escapeCsv(l.utmSource || l.source || ''),
+      ]);
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `remo_leads_${format(new Date(), 'yyyyMMdd')}.csv`;
       a.click();
     } catch (e) {
-      console.error(e);
+      console.error('[CSV Export Error]', e);
     }
   };
 
@@ -112,17 +115,25 @@ export function AdminLeadsTab({ user }: Props) {
         )}
       </div>
 
-      {/* Search & Export */}
+      {/* Search & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2 flex-1 max-w-[420px]">
+        <div className="flex items-center gap-2 flex-1 max-w-[460px]">
           <input
             type="text"
             placeholder="회사명, 담당자, 전화번호, 이메일 검색..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && fetchLeads()}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-xs text-white focus:border-blue-500 focus:outline-none"
+            className="flex-1 rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-xs text-white focus:border-blue-500 focus:outline-none"
           />
+          <button
+            onClick={fetchLeads}
+            disabled={loading}
+            title="새로고침 (캐시 재갱신)"
+            className="p-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
         <Button onClick={handleExportCSV} variant="secondary" className="text-xs">
           CSV 내보내기
@@ -196,7 +207,7 @@ export function AdminLeadsTab({ user }: Props) {
         </div>
       </div>
 
-      {/* Selected Lead Modal / Detail Drawer */}
+      {/* Selected Lead Modal */}
       {selectedLead && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-4">
@@ -286,4 +297,3 @@ export function AdminLeadsTab({ user }: Props) {
     </div>
   );
 }
-

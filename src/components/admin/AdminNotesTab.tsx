@@ -4,6 +4,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { User } from 'firebase/auth';
 import type { MeetingNote } from '@/types/admin';
 import {
+  fetchNotesDirect,
+  saveNoteDirect,
+  deleteNoteDirect,
+} from '@/lib/firestore-admin-client';
+import {
   FileText,
   Plus,
   Trash2,
@@ -13,7 +18,7 @@ import {
   Link as LinkIcon,
   ExternalLink,
   RefreshCw,
-  Check
+  Check,
 } from 'lucide-react';
 
 interface Props {
@@ -37,26 +42,21 @@ export function AdminNotesTab({ user }: Props) {
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Manual one-shot fetch (0-cost caching: only fetches on initial load or Refresh click)
   const fetchNotes = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await user.getIdToken();
-      const res = await fetch('/api/admin/notes', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setNotes(data.notes || []);
-        if (data.notes && data.notes.length > 0 && !selectedNote) {
-          setSelectedNote(data.notes[0]);
-        }
+      const items = await fetchNotesDirect();
+      setNotes(items);
+      if (items.length > 0 && !selectedNote) {
+        setSelectedNote(items[0]);
       }
     } catch (err) {
-      console.error('[Fetch Notes Error]', err);
+      console.error('[Fetch Notes Direct Error]', err);
     } finally {
       setLoading(false);
     }
-  }, [user, selectedNote]);
+  }, [selectedNote]);
 
   useEffect(() => {
     fetchNotes();
@@ -97,45 +97,29 @@ export function AdminNotesTab({ user }: Props) {
     }
     setSaving(true);
     try {
-      const token = await user.getIdToken();
-      const payload = {
-        title: editTitle,
-        date: editDate,
-        category: editCategory,
-        content: editContent,
-        attachments: editAttachments,
-      };
-
       const isUpdate = !!selectedNote?.id;
-      const url = isUpdate ? `/api/admin/notes/${selectedNote.id}` : '/api/admin/notes';
-      const method = isUpdate ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const savedNote = await saveNoteDirect(
+        {
+          title: editTitle,
+          date: editDate,
+          category: editCategory,
+          content: editContent,
+          attachments: editAttachments,
         },
-        body: JSON.stringify(payload),
-      });
+        selectedNote?.id,
+        user.email || 'gitkaiba@gmail.com'
+      );
 
-      if (res.ok) {
-        const data = await res.json();
-        const savedNote: MeetingNote = data.note;
-        if (isUpdate) {
-          setNotes((prev) => prev.map((n) => (n.id === savedNote.id ? savedNote : n)));
-        } else {
-          setNotes((prev) => [savedNote, ...prev]);
-        }
-        setSelectedNote(savedNote);
-        setIsEditing(false);
+      if (isUpdate) {
+        setNotes((prev) => prev.map((n) => (n.id === savedNote.id ? savedNote : n)));
       } else {
-        const errData = await res.json();
-        alert(errData.error || '저장에 실패했습니다.');
+        setNotes((prev) => [savedNote, ...prev]);
       }
-    } catch (err) {
+      setSelectedNote(savedNote);
+      setIsEditing(false);
+    } catch (err: unknown) {
       console.error('[Save Note Error]', err);
-      alert('저장 중 오류가 발생했습니다.');
+      alert((err as Error).message || '저장 중 오류가 발생했습니다.');
     } finally {
       setSaving(false);
     }
@@ -144,20 +128,15 @@ export function AdminNotesTab({ user }: Props) {
   const handleDelete = async (noteId: string) => {
     if (!confirm('이 회의록을 삭제하시겠습니까?')) return;
     try {
-      const token = await user.getIdToken();
-      const res = await fetch(`/api/admin/notes/${noteId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setNotes((prev) => prev.filter((n) => n.id !== noteId));
-        if (selectedNote?.id === noteId) {
-          setSelectedNote(null);
-          setIsEditing(false);
-        }
+      await deleteNoteDirect(noteId);
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+      if (selectedNote?.id === noteId) {
+        setSelectedNote(null);
+        setIsEditing(false);
       }
     } catch (err) {
       console.error('[Delete Note Error]', err);
+      alert('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -239,7 +218,7 @@ export function AdminNotesTab({ user }: Props) {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[640px]">
       {/* LEFT PANEL: Notes List (4 cols) */}
       <div className="lg:col-span-4 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col h-[700px]">
-        {/* Search & New Button */}
+        {/* Search & Actions */}
         <div className="flex items-center gap-2 mb-3">
           <input
             type="text"
@@ -248,6 +227,14 @@ export function AdminNotesTab({ user }: Props) {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
           />
+          <button
+            onClick={fetchNotes}
+            disabled={loading}
+            title="새로고침 (캐시 재갱신)"
+            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
           <button
             onClick={handleStartCreate}
             className="inline-flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition-colors"
@@ -505,4 +492,3 @@ export function AdminNotesTab({ user }: Props) {
     </div>
   );
 }
-
