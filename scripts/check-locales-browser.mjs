@@ -52,6 +52,9 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
         if (suffix === '') {
           assert.deepEqual(await page.locator('main > section').evaluateAll(nodes => nodes.map(node => node.id)),
             ['hero','solutions','lead-form']);
+          assert.ok((await page.locator('#about-remo').innerText()).includes(catalog['REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。']));
+          assert.equal(await page.locator('#about-remo a').getAttribute('href'),'https://www.remo.re.kr/');
+          assert.equal(await page.locator('#about-remo').evaluate(node=>!!node.closest('details')),false);
           const email = new URL(await page.locator('#lead-form .space-button').getAttribute('href'));
           assert.equal(email.protocol,'mailto:');
           assert.equal(email.pathname,'remo@boam.tech');

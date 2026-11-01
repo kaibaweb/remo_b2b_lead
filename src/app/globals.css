@@ -440,3 +440,16 @@ html[dir="rtl"] .landing-content .text-center { text-align: center; }
   .meeting-footer { align-items: flex-start; padding: 24px 20px calc(100px + env(safe-area-inset-bottom)); }
   .meeting-footer nav { justify-content: flex-end; gap: 0 16px; }
 }
+
+/* Compact, always-visible identity before a visitor considers the offers. */
+.meeting-company-byline { max-width: 660px; margin: 0 auto 16px; color: #c9c1da; font-size: 13px; line-height: 1.8; text-wrap: pretty; }
+.company-identity { display: grid; grid-template-columns: minmax(150px,.55fr) minmax(0,2fr); gap: 30px; align-items: start; border: 1px solid #ffffff22; border-inline-start: 3px solid #c6f784; background: #ffffff03; border-radius: 18px; padding: 28px; margin-bottom: 48px; }
+.meeting-site .company-identity h2 { font-size: 23px; font-weight: 600; line-height: 1.5; color: #f5f0fc; }
+.company-identity-description { color: #e1dbe9; font-size: 16px; line-height: 1.85; }
+.company-identity-products { margin-top: 12px; color: #b8afc8; font-size: 14px; line-height: 1.9; }
+.company-identity a { margin-top: 12px; color: #c6f784; font-size: 13px; text-align: start; }
+@media(max-width:640px) {
+  .company-identity { grid-template-columns: minmax(0,1fr); gap: 16px; padding: 24px; margin-bottom: 36px; }
+  .meeting-site .company-identity h2 { font-size: 21px; }
+  .meeting-company-byline { font-size: 12px; }
+}

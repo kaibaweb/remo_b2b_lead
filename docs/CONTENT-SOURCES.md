@@ -37,3 +37,11 @@ A proxy refusal is not an origin HTTP status or proof that a source is offline. 
 ## To substantiate the factual proof sections
 
 Provide accessible strategy text and official product/news materials, exact patent/accuracy references and test conditions, named adoption releases, exhibition posts with dates/locations, and approved photo assets with reuse terms. These can replace the current evaluation/official-update pathways with source-backed proof and an activity timeline. Translation completeness is not independent native-speaker or legal review.
+
+## Company identity correction — 2026-11-01
+
+The user identified a missing company introduction in the shortened meeting funnel. The hero now states REMO's motion-analysis/FINEFIT focus, and an always-visible company panel precedes the three offers. It names the operator-supplied FINEFIT product family and links the official company website. These statements are grounded in the earlier operator brief, not newly scraped or independently verified corporate information.
+
+Both `https://remo.re.kr/` and `https://www.remo.re.kr/` were retried after the user's explicit request to read the official site. Both failed at HTTPS proxy CONNECT with403; no website content was obtained. A supported environment draft adds those two hosts while preserving the two previously saved UPP research hosts. Saving a draft does not activate runtime access: review/save/publication is still required. Patent, adoption, corporate-history and exhibition facts therefore remain pending.
+
+Four identity keys were added to all20 catalogs (278 keys each). Production build, web16/Python23 tests, mock demo/compileall and the scoped public-code lint pass. The browser suite checks that company identity is rendered outside collapsed details, its official URL, locale metadata, all three meeting topics, four viewport widths and existing inquiry states. Full-project lint retains9 inherited administrator/Firestore errors and10 warnings; these were not suppressed. No messages were sent. This small correction restores identity, not a claim that the evidence gap has been fully resolved.

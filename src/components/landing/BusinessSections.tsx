@@ -18,6 +18,13 @@ export function MeetingOffers({ selected, onChoose }: InterestProps) {
   ];
   return <Section id="solutions" className="meeting-offers">
     <span id="opportunities" className="business-anchor" aria-hidden="true"/>
+    <aside id="about-remo" className="company-identity" aria-labelledby="company-identity-title">
+      <h2 id="company-identity-title">{t('认识 REMO')}</h2>
+      <div><p className="company-identity-description">{t('REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。')}</p>
+        <p className="company-identity-products">{t('本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。')}</p>
+        <a href={businessContacts.remo} className="space-text-link" target="_blank" rel="noopener noreferrer">{t('查看 REMO 官方产品与企业信息')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
+      </div>
+    </aside>
     <SectionHeadline>{t('贵司现在需要哪一种？')}</SectionHeadline>
     <div className="meeting-offer-grid">{offers.map((offer,index)=><article className={`space-card meeting-offer${selected===offer.id?' is-selected':''}`} key={offer.id} data-interest={offer.id}>
       <p className="meeting-offer-label"><span>0{index+1}</span>{offer.label}</p>

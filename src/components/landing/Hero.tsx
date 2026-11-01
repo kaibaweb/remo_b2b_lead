@@ -11,6 +11,7 @@ export function Hero() {
     <div className="space-hero-content">
       <div className="space-eyebrow"><span className="space-status-dot"/>REMO<span className="space-eyebrow-divider"/>{t('中国 ↔ 韩国')} · Shenzhen</div>
       <h1 className="space-hero-title" id="hero-title">{t('下一笔生意，')}<br/><span>{t('在深圳，当面谈。')}</span></h1>
+      <p className="meeting-company-byline">{t('REMO｜人体动作分析 AI 与 FINEFIT 产品')}</p>
       <p className="meeting-hero-question">{t('正在寻找训练数据、韩国渠道，')}{' '}{t('或下一款值得代理的产品？')}</p>
       <p className="space-hero-description">{t('我们将在深圳。见一面，把合作谈具体。')}</p>
       <div className="space-hero-actions">
