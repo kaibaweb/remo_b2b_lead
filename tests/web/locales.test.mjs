@@ -44,8 +44,10 @@ test('explicit locale selection wins and unsupported preference cookies are igno
 test('catalog verification rejects a missing consent sentence and a stale translation',async()=>{
   const { validateCatalogs } = await import('../../scripts/check-locales.mjs');
   const { mkdtemp, cp, readFile, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
   const { pathToFileURL } = await import('node:url');
-  const directory = await mkdtemp('/tmp/remo-catalog-test-');
+  const directory = await mkdtemp(join(tmpdir(), 'remo-catalog-test-'));
   try {
     await cp(new URL('../../src/lib/messages/',import.meta.url),directory,{recursive:true});
     const target = `${directory}/fr.json`;
