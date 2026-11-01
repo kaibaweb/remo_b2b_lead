@@ -45,7 +45,7 @@ export function StickyCTA() { const { t } = useTranslation();
         className="w-full rounded-2xl bg-billy-yellow py-4 text-[17px] font-bold text-text-primary
                    shadow-xl shadow-billy-yellow/30 active:scale-[0.98] transition-all"
       >
-        {t("合作咨询 · 留下需求 →")}</button>
+        {t("预约深圳会面")}</button>
     </div>
   );
 }

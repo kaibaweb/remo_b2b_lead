@@ -1,5 +1,7 @@
 # REMO business landing — source and claim register
 
+Current direction: the shorter three-stage Shenzhen meeting funnel supersedes the earlier seven-section layout. Historical section numbers below describe the earlier factual-content audit; no new company/attendance proof was added.
+
 Reviewed on 2026-11-01. This register separates material actually retrieved from operator-supplied information and proposals. It does not certify company credentials.
 
 ## Required source access

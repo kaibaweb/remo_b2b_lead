@@ -58,4 +58,4 @@ remo_b2b_lead/
 
 ## 글로벌 비즈니스 랜딩 콘텐츠
 
-메인은 고객의 데이터·통합 문제에서 출발하는 7개 섹션(Hero → What You Need → Our Solutions → Why REMO → Global Presence → CHTF → Final CTA)으로 구성됩니다. 이메일·LinkedIn·WeChat이 직접 문의 동선이며 기존 구조화 문의 폼은 로케일별 `/contact`에 유지합니다. 제품·전략·실적의 출처 상태와 미확인 항목은 [콘텐츠 출처 기록](docs/CONTENT-SOURCES.md)을 확인하세요.
+메인은 심천 체류 중 중국 기업과의 미팅을 목표로 하는 3단계(Hero → 세 가지 사업 제안 → 미팅 요청)로 구성됩니다. 제안은 휴머노이드 학습 데이터 판매, 한국 판매·유통·SI 협력, REMO 제품 유통·총판입니다. 이메일·LinkedIn·WeChat이 직접 문의 동선이며 기존 구조화 문의 폼은 로케일별 `/contact`에 유지합니다. 제품·전략·실적의 출처 상태와 미확인 항목은 [콘텐츠 출처 기록](docs/CONTENT-SOURCES.md)을 확인하세요.

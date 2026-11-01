@@ -381,3 +381,62 @@ html[dir="rtl"] .landing-content .text-center { text-align: center; }
 }
 
 .public-site:lang(ko) :is(p, a, li) { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* Shenzhen meeting funnel: three decisions instead of seven long chapters. */
+.meeting-site .meeting-hero { min-height: 0; padding: 138px 24px 70px; }
+.meeting-hero .space-hero-title { font-size: clamp(42px,5vw,72px); max-width: 1000px; margin-inline: auto; line-height: 1.25; }
+.meeting-hero-question { max-width: 720px; margin: 24px auto 16px; color: #f0edf8; font-size: 19px; line-height: 1.8; text-wrap: pretty; }
+.meeting-hero .space-hero-description { font-size: 16px; color: #bbb6cd; }
+.meeting-hero .space-hero-note { max-width: 640px; margin-inline: auto; line-height: 1.9; }
+.meeting-site .space-section { padding-block: 64px; }
+.meeting-site .space-section h2 { font-size: clamp(28px,3.3vw,42px); }
+.meeting-site .meeting-offers { border-top: 1px solid #ffffff12; }
+.meeting-offer-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.meeting-offer { padding: 28px; border-radius: 24px; display: flex; flex-direction: column; min-width: 0; }
+.meeting-offer.is-selected { border-color: #c6f78488; background-color: #c6f78407; }
+.meeting-offer-label { display: flex; gap: 12px; align-items: flex-start; color: #c6f784; font-size: 12px; line-height: 1.8; margin-bottom: 24px; }
+.meeting-offer-label > span { color: #a598c7; font-variant-numeric: tabular-nums; }
+.meeting-offer h3 { font-size: 25px; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+.meeting-offer-who { color: #aaa4b9; font-size: 13px; line-height: 1.85; margin-bottom: 18px; }
+.meeting-offer-delivery { color: #dad5e5; font-size: 16px; line-height: 1.9; margin-bottom: 28px; }
+.meeting-offer > a { margin-top: auto; align-self: flex-start; color: #c6f784; font-size: 14px; text-align: start; }
+.meeting-resources { margin-top: 28px; border-block: 1px solid #ffffff18; color: #bab4c9; }
+.meeting-resources > summary { cursor: pointer; padding: 20px 8px; font-size: 14px; line-height: 1.8; }
+.meeting-resources > div { padding: 8px 8px 28px; font-size: 14px; line-height: 1.9; }
+.meeting-resource-heading { color: #f4f0fa; font-size: 18px; margin-bottom: 10px; }
+.meeting-scope-note { margin-top: 24px; font-size: 13px; color: #a7a0b8; }
+.meeting-request-grid { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(0,1fr); max-width: 1000px; margin: auto; gap: 54px; align-items: start; }
+.meeting-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; border: 0; min-width: 0; }
+.meeting-fields label { display: flex; flex-direction: column; gap: 10px; color: #c6c0d3; font-size: 13px; line-height: 1.8; min-width: 0; }
+.meeting-field-wide { grid-column: 1 / -1; }
+.public-site .meeting-fields input, .public-site .meeting-fields select { width: 100%; min-width: 0; border: 1px solid #ffffff28; border-radius: 12px; padding: 13px; color: #f0eaf8; background: #08090f; min-height: 50px; }
+.meeting-email-button { margin-top: 24px; width: 100%; justify-content: space-between; text-align: start; font-size: 14px; }
+.meeting-composer-note { font-size: 12px; color: #aaa1bb; line-height: 1.85; margin-top: 12px; }
+.meeting-direct-contact { padding: 28px; border: 1px solid #ffffff20; border-radius: 22px; background: #ffffff03; }
+.meeting-direct-contact > h3 { font-size: 18px; line-height: 1.6; font-weight: 500; margin-bottom: 20px; }
+.meeting-direct-contact .business-wechat { border: 0; padding: 0; }
+.meeting-direct-contact .business-secondary-button { margin-top: 20px; border: 0; border-bottom: 1px solid #ffffff30; border-radius: 0; padding: 12px 0; font-size: 13px; justify-content: flex-start; min-height: 44px; }
+.meeting-email-address { display: block; color: #c6f784; font-size: 16px; padding-block: 10px; overflow-wrap: anywhere; }
+.meeting-fair-note { max-width: 1000px; margin: 32px auto 0; padding-top: 22px; border-top: 1px solid #ffffff18; color: #aaa2bc; font-size: 12px; line-height: 1.9; }
+.meeting-fair-note strong { color: #d8cfe6; }
+.meeting-fair-note p + p { margin-top: 5px; }
+.meeting-structured-link { display: block; max-width: 1000px; margin: 12px auto 0; font-size: 12px; color: #b6afc5; text-decoration: underline; text-underline-offset: 5px; padding-block: 10px; }
+.meeting-footer { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 28px max(24px,calc((100vw - 1200px) / 2)); }
+.meeting-footer > strong { font-size: 20px; letter-spacing: -.04em; }
+.meeting-footer nav { display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 12px; color: #aaa3ba; }
+.meeting-footer nav a { padding-block: 12px; }
+@media(max-width:900px) { .meeting-offer-grid { grid-template-columns: minmax(0,1fr); } .meeting-offer { padding: 26px; } .meeting-request-grid { gap: 28px; } }
+@media(max-width:640px) {
+  .meeting-site .meeting-hero { padding: 128px 20px 52px; }
+  .meeting-hero .space-hero-title { font-size: clamp(32px,8.5vw,46px); line-height: 1.35; }
+  .meeting-hero-question { font-size: 17px; line-height: 1.8; }
+  .meeting-site .space-section { padding-block: 48px; }
+  .meeting-site .space-section > div > div:first-child { margin-bottom: 28px; }
+  .meeting-offer h3 { font-size: 24px; }
+  .meeting-offer-label { margin-bottom: 18px; }
+  .meeting-request-grid { grid-template-columns: minmax(0,1fr); }
+  .meeting-fields { gap: 16px; }
+  .meeting-direct-contact { padding: 24px; }
+  .meeting-footer { align-items: flex-start; padding: 24px 20px calc(100px + env(safe-area-inset-bottom)); }
+  .meeting-footer nav { justify-content: flex-end; gap: 0 16px; }
+}

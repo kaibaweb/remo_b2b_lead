@@ -22,3 +22,16 @@ test('localized meeting email content cannot inject extra recipients or paramete
   assert.equal(url.searchParams.get('body'),body);
   assert.deepEqual([...url.searchParams.keys()],['subject','body']);
 });
+
+test('meeting links select only known offers and preserve legacy mailing tracks',async()=>{
+  const { meetingInterestFromHref }=await import('../../src/lib/business-contact.mjs');
+  assert.equal(meetingInterestFromHref('/zh-CN?interest=data&utm_source=mail'),'data');
+  assert.equal(meetingInterestFromHref('/?interest=korea&track=finefit'),'korea');
+  assert.equal(meetingInterestFromHref('/?interest=distribution'),'distribution');
+  assert.equal(meetingInterestFromHref('/?track=physical_ai_data'),'data');
+  assert.equal(meetingInterestFromHref('/?track=korea_entry'),'korea');
+  assert.equal(meetingInterestFromHref('/?track=finefit'),'distribution');
+  assert.equal(meetingInterestFromHref('/?interest=unknown'),'');
+  assert.equal(meetingInterestFromHref('/'),'');
+  for(const value of ['constructor','toString','__proto__']) assert.equal(meetingInterestFromHref(`/?track=${value}`),'');
+});
