@@ -1,3 +1,4 @@
+import { isLocale, localeFromPath } from '@/lib/locales.mjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { leadFormSchema, createInquiry } from '@/lib/inbound-policy.mjs';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
   if(!parsed.success)return NextResponse.json({error:'请检查必填信息并同意隐私说明。'},{status:400});
   if(process.env.INBOUND_ENABLED!=='true')return NextResponse.json({error:'咨询通道暂未开放，请稍后再试。'},{status:503});
   const tracking=Object.fromEntries(['source','landingPath','utmSource','utmMedium','utmCampaign','utmContent','utmTerm','referrer'].map(key=>[key,typeof body[key]==='string'?body[key].slice(0,500):'']));
+  tracking.locale = isLocale(body.locale) ? body.locale : localeFromPath(tracking.landingPath) || 'zh-CN';
   try{
     const {db}=await adminFirebase();
     const ref=db.collection('remo_inbound_leads').doc();

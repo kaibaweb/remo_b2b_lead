@@ -51,3 +51,7 @@ remo_b2b_lead/
 │   └── lib/              # Firebase, Resend, Telegram 클라이언트
 └── config.example.json
 ```
+
+## 공개 페이지 다국어 유지보수
+
+20개 언어의 로케일별 번역, 브라우저 언어 선택 규칙과 검증 절차는 [다국어 운영 매뉴얼](docs/LOCALIZATION.md)에 정리되어 있습니다. 모든 공개 화면 업데이트에 [maintaining-locales 스킬](.agents/skills/maintaining-locales/SKILL.md)을 적용합니다. 빌드 전 자동으로 번역 누락을 검사하며 간체 기본값·브라우저 맞춤·영어 대체 규칙을 유지합니다.

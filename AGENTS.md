@@ -32,3 +32,7 @@ Web checks: `npm run build`, `npm run lint`, `node --test tests/web/*.test.mjs`.
 ## Validation
 
 Run `python -m unittest discover -s tests -v`, `python -m remo_lead --config config.example.json demo`, and `python -m compileall -q remo_lead` after changes. Tests and demo use fictitious records and mock providers only. Run a CLI smoke workflow after changing commands or schema. Report real adapter connection state separately from test results.
+
+## Mandatory public localization workflow
+
+For every public website update, read and apply [.agents/skills/maintaining-locales/SKILL.md](.agents/skills/maintaining-locales/SKILL.md) and [docs/LOCALIZATION.md](docs/LOCALIZATION.md). This includes copy, layout, forms, privacy, errors, metadata and routing. Maintain all 20 catalogs in `src/lib/messages/` with exact key parity; do not deliver partial translations relying on runtime fallback. Run `npm run check:locales` for every update, alongside existing web checks. Preserve Simplified Chinese default, browser-language matching, English fallback, remembered explicit selection and mobile reading hierarchy.

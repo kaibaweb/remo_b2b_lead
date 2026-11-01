@@ -19,6 +19,7 @@ export interface Lead {
   // Tracking
   source: string;
   landingPath: string;
+  locale?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -47,6 +48,7 @@ export interface LeadFormData {
 export interface LeadCreatePayload extends Omit<LeadFormData, 'privacyConsent' | 'honeypot'> {
   source: string;
   landingPath: string;
+  locale?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;

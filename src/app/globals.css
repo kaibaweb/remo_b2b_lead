@@ -23,7 +23,7 @@
   --color-text-muted: #888888;
 
   /* Fonts */
-  --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Apple SD Gothic Neo', sans-serif;
 
   /* Spacing */
   --spacing-section: 80px;
@@ -157,3 +157,8 @@ body { overflow-wrap: anywhere; }
 .landing-content { line-height: 1.75; }
 .landing-content h3 { text-wrap: balance; }
 .landing-content p, .landing-content li { text-wrap: pretty; }
+
+/* Locale-aware wrapping: Korean words stay together; other scripts can wrap naturally. */
+html:not([lang="ko"]) :is(h1, h2, h3, h4) { word-break: normal; overflow-wrap: anywhere; }
+html[dir="rtl"] .landing-content { text-align: start; }
+html[dir="rtl"] .landing-content .text-center { text-align: center; }

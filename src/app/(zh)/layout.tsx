@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
 import '../globals.css';
-export const metadata: Metadata = {
-  title: 'REMO China Connect | 中韩企业合作',
-  description: '探索 FINEFIT 健身科技、机器人训练数据需求与韩国市场渠道、SI 及维护合作。',
-  openGraph: { title: 'REMO China Connect', description: '连接中国企业与韩国市场，从一次真实需求交流开始。', type: 'website', locale: 'zh_CN' },
-};
-export default function RootLayout({ children }: { children: React.ReactNode }) {
- return <html lang="zh-CN" className="h-full antialiased"><body className="font-sans min-h-full flex flex-col">{children}</body></html>;
+import { LocaleProvider } from '@/components/i18n/LocaleProvider';
+import { getMessages } from '@/lib/messages';
+import { publicMetadata } from '@/lib/locale-metadata';
+export async function generateMetadata() { return publicMetadata('zh-CN'); }
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const messages = await getMessages('zh-CN');
+  return <html lang="zh-CN" dir="ltr" className="h-full antialiased"><body className="font-sans min-h-full flex flex-col"><LocaleProvider locale="zh-CN" messages={messages}>{children}</LocaleProvider></body></html>;
 }

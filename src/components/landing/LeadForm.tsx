@@ -98,6 +98,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
           email: formData.email.trim(),
           message: formData.message.trim() || undefined,
           source: 'remo-china-landing',
+          locale,
           landingPath: window.location.pathname,
           utmSource: params.get('utm_source') || undefined,
           utmMedium: params.get('utm_medium') || undefined,
@@ -109,19 +110,18 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        const localizedError = response.status === 503
-          ? '현재 문의 접수가 열려 있지 않습니다. 잠시 후 다시 시도해 주세요.'
-          : response.status === 429 ? '요청이 많습니다. 잠시 후 다시 시도해 주세요.'
-          : response.status === 400 ? '입력 정보와 개인정보 동의를 확인해 주세요.'
+        const message = response.status === 503
+          ? t("咨询通道暂未开放，请稍后再试。")
+          : response.status === 429 ? t("请求过多，请稍后再试。")
+          : response.status === 400 ? t("请检查必填信息并同意隐私说明。")
           : t("提交失败，请稍后再试。");
-        throw new Error(locale === 'ko' ? localizedError : data.error || t("提交失败，请稍后再试。"));
+        throw new Error(message);
       }
 
       setIsSuccess(true);
       trackEvent('form_success');
     } catch (err) {
-      setSubmitError(locale === 'ko' && err instanceof TypeError ? '네트워크 연결을 확인한 후 다시 시도해 주세요.' : err instanceof Error ? err.message : t("提交失败，请稍后再试。"));
+      setSubmitError(err instanceof TypeError ? t("网络连接失败，请检查网络后重试。") : err instanceof Error ? err.message : t("提交失败，请稍后再试。"));
     } finally {
       setIsSubmitting(false);
     }
@@ -231,7 +231,7 @@ export function LeadForm() { const { t, path, locale } = useTranslation();
               {t("为处理本次合作咨询，我已阅读并同意")}{' '}
               <a href={path("/privacy")} target="_blank" className="text-billy-blue underline hover:text-billy-blue/80">
                 {t("咨询信息与隐私说明")}</a>
-              。
+              {t("。")}
             </label>
           </div>
           {errors.privacyConsent && (

@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run check:locales && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:web": "node --test tests/web/*.test.mjs"
+    "test:web": "npm run check:locales && node --test tests/web/*.test.mjs",
+    "check:locales": "node scripts/check-locales.mjs",
+    "check:locales:browser": "node scripts/check-locales-browser.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -1,7 +1,8 @@
 'use client';
 import { useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
-import { localizedPath } from '@/lib/locales.mjs';
+import { Globe2 } from 'lucide-react';
+import { localizedPath, supportedLocales, LOCALE_COOKIE } from '@/lib/locales.mjs';
 import { useTranslation } from './LocaleProvider';
 
 const subscribeLocation = (callback: () => void) => {
@@ -17,12 +18,18 @@ const readLocation = () => window.location.pathname + window.location.search + w
 export function LanguageSwitcher() {
   const pathname = usePathname();
   const currentUrl = useSyncExternalStore(subscribeLocation, readLocation, () => pathname);
-  const { locale } = useTranslation();
-  return <nav aria-label={locale === 'ko' ? '언어 선택' : '语言选择'} className="flex shrink-0 items-center gap-1 text-xs font-semibold">
-    {(['zh', 'ko'] as const).map(language => <a key={language}
-      href={localizedPath(currentUrl, language)} hrefLang={language === 'ko' ? 'ko' : 'zh-CN'}
-      lang={language === 'ko' ? 'ko' : 'zh-CN'} aria-current={language === locale ? 'page' : undefined}
-      className={language === locale ? 'inline-flex min-h-11 items-center rounded-full bg-billy-yellow-light px-3 text-text-primary' : 'inline-flex min-h-11 items-center px-2 text-text-secondary'}
-    >{language === 'ko' ? '한국어' : '中文'}</a>)}
-  </nav>;
+  const { locale, t } = useTranslation();
+  return <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-text-primary/10 bg-white px-2 text-text-primary">
+    <Globe2 aria-hidden="true" className="h-4 w-4 shrink-0" />
+    <select aria-label={t('语言选择')} value={locale}
+      className="min-h-11 w-[112px] cursor-pointer bg-transparent pe-1 text-sm font-semibold sm:w-[138px]"
+      onChange={event => {
+        const selected = event.target.value;
+        document.cookie = `${LOCALE_COOKIE}=${selected}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+        // Locale layouts are separate roots; a full navigation also refreshes html lang/dir.
+        window.location.assign(localizedPath(currentUrl, selected));
+      }}>
+      {supportedLocales.map(({ id, label }) => <option key={id} value={id} lang={id}>{label}</option>)}
+    </select>
+  </div>;
 }
