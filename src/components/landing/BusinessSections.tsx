@@ -11,24 +11,18 @@ interface InterestProps { selected: string; onChoose: (interest: string) => void
 export function MeetingOffers({ selected, onChoose }: InterestProps) {
   const { t }=useTranslation();
   const offers=[
-    {id:'data',label:t('动作数据与技术合作'),hook:t('让人的动作，成为贵司技术的下一步。'),need:t('当前最缺哪类训练数据？'),offer:t('围绕机器人、健康与体育应用，讨论人体动作数据及体态、步态、运动分析的合作可能。')},
-    {id:'korea',label:t('韩国市场合作'),hook:t('为韩国业务，找到共同的起点。'),need:t('需要怎样的本地合作伙伴？'),offer:t('连接贵司的产品与技术和 REMO 的韩国业务经验，探索客户对接、试点验证与技术集成。')},
-    {id:'distribution',label:t('健康产品与解决方案合作'),hook:t('给您的客户，一个新的购买理由。'),need:t('寻找下一款可销售的产品'),offer:t('FINEFIT AI Mirror 提供体态测量与运动项目；SIMPro 支持体育动作分析。一起探索适合贵司客户的应用与业务合作。')},
+    {id:'data',label:t('动作数据与技术合作'),hook:t('为贵司的开发任务，连接人的动作。'),offer:t('围绕机器人、健康与体育服务开发所需的动作数据及体态、步态、动作分析技术，探讨应用可能。')},
+    {id:'korea',label:t('韩国市场合作'),hook:t('一起寻找韩国市场的下一位客户。'),offer:t('将贵司的产品与技术连接 REMO 的韩国业务经验，共同评估客户开发、试点验证与技术集成。')},
+    {id:'distribution',label:t('健康产品与解决方案合作'),hook:t('为现有客户，带来新的健康解决方案。'),offer:t('FINEFIT AI Mirror 提供体态测量与运动项目，SIMPro 分析体育动作。一起讨论如何应用于贵司客户与销售渠道。')},
   ];
   return <Section id="solutions" className="meeting-offers">
     <span id="opportunities" className="business-anchor" aria-hidden="true"/>
-    <SectionHeadline sub={t('不必先了解我们的全部技术。先看能一起做成什么生意。')}>{t('把技术变成贵司的机会。')}</SectionHeadline>
+    <SectionHeadline>{t('把技术变成贵司的机会。')}</SectionHeadline>
     <div className="meeting-offer-grid">{offers.map((offer,index)=><article id={`offer-${offer.id}`} className={`space-card meeting-offer${selected===offer.id?' is-selected':''}`} key={offer.id} data-interest={offer.id}>
       <p className="meeting-offer-label"><span>0{index+1}</span>{offer.label}</p>
-      <p className="meeting-offer-who">{offer.need}</p><h3>{offer.hook}</h3><p className="meeting-offer-delivery">{offer.offer}</p>
+      <h3>{offer.hook}</h3><p className="meeting-offer-delivery">{offer.offer}</p>
       <a className="space-text-link" href="#lead-form" onClick={()=>{onChoose(offer.id);trackEvent('use_case_click',{interest:offer.id});}}>{t('就这个方向约见')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
     </article>)}</div>
-    <aside id="about-remo" className="company-identity" aria-labelledby="company-identity-title">
-      <h2 id="company-identity-title">{t('认识 REMO')}</h2>
-      <div><p className="company-identity-description">{t('REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。')}</p>
-        <a href={businessContacts.remo} className="space-text-link" target="_blank" rel="noopener noreferrer">{t('查看 REMO 官方产品与企业信息')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
-      </div>
-    </aside>
     <CompanyEvidence/>
   </Section>;
 }

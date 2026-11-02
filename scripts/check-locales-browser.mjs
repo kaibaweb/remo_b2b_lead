@@ -52,9 +52,12 @@ const { chromium, request } = createRequire(import.meta.url)('playwright');
         if (suffix === '') {
           assert.deepEqual(await page.locator('main > section').evaluateAll(nodes => nodes.map(node => node.id)),
             ['hero','solutions','lead-form']);
-          assert.ok((await page.locator('#about-remo').innerText()).includes(catalog['REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。']));
-          assert.equal(await page.locator('#about-remo a').getAttribute('href'),'https://www.remo.re.kr/');
-          assert.equal(await page.locator('#about-remo').evaluate(node=>!!node.closest('details')),false);
+          assert.equal(await page.locator('#about-remo').count(),0);
+          assert.equal(await page.locator('#hero a').count(),1);
+          assert.equal(await page.locator('#hero a').getAttribute('href'),'#solutions');
+          assert.equal(await page.locator('#hero .partner-track-links').count(),0);
+          assert.equal(await page.locator('.meeting-offer-who').count(),0);
+          assert.ok((await page.locator('.hero-company-intro').innerText()).includes(catalog['REMO 是一家分析体态、步态与体育动作的韩国 AI 企业。 我们以动作分析技术、健康解决方案和韩国业务经验为基础，探讨合作可能。'].split('\n')[0]));
           assert.equal(await page.locator('.partner-proof-wall > a').count(),9);
           assert.ok((await page.locator('#company-evidence').innerText()).includes(catalog['与不同客户，在真实现场积累经验。']));
           assert.equal(await page.locator('.partner-photo-grid').count(),0);
