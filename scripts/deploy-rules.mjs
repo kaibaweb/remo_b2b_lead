@@ -61,3 +61,4 @@ deployFirestoreRules().catch((err) => {
   console.error('❌ Failed to deploy firestore rules:', err.response?.data || err.message);
   process.exit(1);
 });
+
