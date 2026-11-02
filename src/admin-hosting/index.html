@@ -114,7 +114,13 @@
     <!-- Tab Bar -->
     <div class="border-b border-slate-800 bg-slate-950/40">
       <div class="max-w-[1560px] mx-auto px-4 md:px-8 flex gap-1 sm:gap-2 overflow-x-auto">
-        <button data-tab="leads" class="tab-btn active inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-blue-500 text-blue-400 bg-blue-950/20">
+        <button data-tab="outbound" class="tab-btn active inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-blue-500 text-blue-400 bg-blue-950/20">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          <span>아웃바운드 발송 &amp; HTML 프리뷰</span>
+          <span id="tab-outbound-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-sky-600/30 text-sky-300">0</span>
+        </button>
+
+        <button data-tab="leads" class="tab-btn inline-flex items-center gap-2 py-3.5 px-3 border-b-2 text-xs font-bold whitespace-nowrap transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           <span>인바운드 리드</span>
           <span id="tab-lead-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-blue-600/30 text-blue-300">0</span>
@@ -149,7 +155,89 @@
       <!-- =================================================================== -->
       <!-- TAB 1: INBOUND LEADS -->
       <!-- =================================================================== -->
-      <section id="panel-leads" class="tab-panel space-y-6">
+      <!-- =================================================================== -->
+      <!-- TAB 0: OUTBOUND EMAILS & SKELETON PREVIEWS -->
+      <!-- =================================================================== -->
+      <section id="panel-outbound" class="tab-panel space-y-4">
+        <!-- Header & Subtab Bar -->
+        <div class="bg-[#0f2942] border border-blue-900/60 text-white p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 shadow-xl">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
+              <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              <span>REMO B2B 아웃바운드 — 발송 내역 · 진단질문 · HTML 양식 프리뷰</span>
+            </h2>
+            <p class="text-xs text-slate-300 mt-1">
+              Firebase Firestore (remo_outbound_emails &amp; remo_email_templates) 실시간 연동
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-subtab-outbound" onclick="switchOutboundSubTab('outbound')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-sky-400 text-slate-950 shadow-md shadow-sky-400/20">
+              1. 기업별 발송 내역 &amp; 미리보기
+            </button>
+            <button id="btn-subtab-skeleton-outbound" onclick="switchOutboundSubTab('skeleton-outbound')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700">
+              2. 첫 리드 발송 HTML 골격
+            </button>
+            <button id="btn-subtab-skeleton-welcome" onclick="switchOutboundSubTab('skeleton-welcome')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700">
+              3. 첫 답신 웰컴 회신 골격
+            </button>
+          </div>
+        </div>
+
+        <!-- Subtab 1: Outbound Email List & Preview -->
+        <div id="subtab-pane-outbound" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-5 bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+            <div class="p-3 bg-slate-50 border-b flex gap-2">
+              <div class="relative flex-1">
+                <input id="outbound-search" placeholder="회사명, 이메일, 제목 검색..."
+                  class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500" />
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+              <select id="outbound-status-filter"
+                class="px-2.5 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 bg-white">
+                <option value="ALL">전체</option>
+                <option value="SENT">SENT (발송완료)</option>
+                <option value="READY">READY (발송대기)</option>
+              </select>
+            </div>
+            <div id="outbound-list-container" class="divide-y divide-slate-100 max-h-[680px] overflow-y-auto">
+              <div class="p-10 text-center text-xs text-slate-400">발송 내역을 불러오는 중...</div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 bg-white text-slate-900 rounded-2xl border border-slate-200 p-5 shadow-sm min-h-[480px]">
+            <div id="outbound-preview-pane">
+              <div class="text-xs text-slate-400 p-16 text-center">
+                좌측 목록에서 기업을 선택하시면 발송된 이메일 본문과 제안서 미리보기가 나타납니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subtab 2: Outbound Skeleton -->
+        <div id="subtab-pane-skeleton-outbound" class="hidden bg-white text-slate-900 rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <h3 class="font-bold text-base border-b border-slate-200 pb-3">첫 리드 발송 HTML 기본 골격 ({{변수}} 바인딩 구조)</h3>
+          <div id="skeleton-outbound-container" class="bg-slate-50/60 p-4 rounded-xl border border-slate-100 overflow-x-auto text-xs">
+            서식을 불러오는 중...
+          </div>
+        </div>
+
+        <!-- Subtab 3: Welcome Skeleton -->
+        <div id="subtab-pane-skeleton-welcome" class="hidden bg-white text-slate-900 rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <h3 class="font-bold text-base border-b border-slate-200 pb-3">첫 답신 도착 시 자동 발송되는 웰컴 회신 HTML 양식 (REMO_WELCOME_HTML_TEMPLATE)</h3>
+          <div id="skeleton-welcome-container" class="bg-slate-50/60 p-4 rounded-xl border border-slate-100 overflow-x-auto text-xs">
+            서식을 불러오는 중...
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 1: INBOUND LEADS -->
+      <!-- =================================================================== -->
+      <section id="panel-leads" class="tab-panel hidden space-y-6">
         <!-- Filter Bar -->
         <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
           <div class="flex flex-wrap items-center gap-3 flex-1">
@@ -570,7 +658,7 @@
     async function loadAllData() {
       iconRefresh.classList.add('animate-spin');
       try {
-        await Promise.all([loadLeads(), loadNotes(), loadEmailTemplates(), loadShorts()]);
+        await Promise.all([loadOutbound(), loadLeads(), loadNotes(), loadEmailTemplates(), loadShorts()]);
       } catch (err) {
         console.error('Data load error:', err);
       } finally {
@@ -1116,6 +1204,151 @@
     // =========================================================================
     // UTILS & KPIS
     // =========================================================================
+    
+    // =========================================================================
+    // 0. OUTBOUND SYNC & PREVIEW (remo_outbound_emails & remo_email_templates)
+    // =========================================================================
+    let outboundCache = [];
+    let outboundTemplates = {};
+    let selectedOutboundId = null;
+
+    async function loadOutbound() {
+      try {
+        const [emailsSnap, tplSnap] = await Promise.all([
+          getDocs(query(collection(db, 'remo_outbound_emails'), limit(150))),
+          getDocs(query(collection(db, 'remo_email_templates'), limit(10)))
+        ]);
+        outboundCache = emailsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const tplDoc = tplSnap.docs.find(d => d.id === 'default_skeletons');
+        outboundTemplates = tplDoc ? tplDoc.data() : {};
+
+        if (outboundCache.length > 0 && !selectedOutboundId) {
+          selectedOutboundId = outboundCache[0].draftId || outboundCache[0].id;
+        }
+
+        renderOutboundList();
+        renderOutboundSkeletons();
+        document.getElementById('tab-outbound-count').textContent = outboundCache.length;
+      } catch (err) {
+        console.error('Outbound load error:', err);
+      }
+    }
+
+    function renderOutboundList() {
+      const container = document.getElementById('outbound-list-container');
+      const search = (document.getElementById('outbound-search')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('outbound-status-filter')?.value || 'ALL';
+
+      const filtered = outboundCache.filter(item => {
+        if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+        if (search) {
+          return (item.company || '').toLowerCase().includes(search) ||
+                 (item.email || '').toLowerCase().includes(search) ||
+                 (item.subject || '').toLowerCase().includes(search);
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="p-10 text-center text-xs text-slate-400">발송 내역이 없습니다. (GAS에서 remoSyncToFirebaseAdmin_ 실행 시 자동 동기화)</div>';
+        renderOutboundPreview(null);
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const dId = item.draftId || item.id;
+        const isSel = dId === selectedOutboundId;
+        const isSent = item.status === 'SENT';
+
+        return `
+          <div onclick="selectOutboundItem('${dId}')"
+            class="p-3.5 cursor-pointer transition-colors ${isSel ? 'bg-sky-50 border-l-4 border-l-[#0f2942]' : 'hover:bg-slate-50'}">
+            <div class="flex justify-between items-center text-xs font-bold">
+              <span class="text-slate-900 truncate max-w-[200px]">${escapeHtml(item.company || '무명 기업')}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isSent ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                ${item.status || 'READY'}
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-600 font-mono mt-0.5">${escapeHtml(item.email || '')}</div>
+            <div class="text-[11px] text-slate-500 truncate mt-0.5">${escapeHtml(item.subject || '')}</div>
+            ${item.category ? `
+              <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-slate-100 font-mono">${escapeHtml(item.category)}</span>
+                ${item.city ? `<span>${escapeHtml(item.city)}</span>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      const current = filtered.find(x => (x.draftId || x.id) === selectedOutboundId) || filtered[0];
+      renderOutboundPreview(current);
+    }
+
+    function renderOutboundPreview(item) {
+      const pane = document.getElementById('outbound-preview-pane');
+      if (!item) {
+        pane.innerHTML = '<div class="text-xs text-slate-400 p-16 text-center">좌측 목록에서 기업을 선택해주세요.</div>';
+        return;
+      }
+
+      pane.innerHTML = `
+        <div class="space-y-4">
+          <div class="pb-3 border-b border-slate-200">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-base text-slate-900">
+                ${escapeHtml(item.company || '')} <span class="text-sm font-normal text-slate-500">(${escapeHtml(item.email || '')})</span>
+              </h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${item.status === 'SENT' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                ${item.status || 'READY'}
+              </span>
+            </div>
+            <p class="text-xs text-slate-700 mt-1 font-medium">제목: ${escapeHtml(item.subject || '')}</p>
+            ${item.sentAt ? `<p class="text-[11px] text-slate-400 mt-0.5">발송 시각: ${escapeHtml(item.sentAt)}</p>` : ''}
+          </div>
+
+          <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100 overflow-x-auto">
+            <div>${item.htmlBody || '<p class="text-xs text-slate-400">본문 내용이 없습니다.</p>'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOutboundSkeletons() {
+      const outSkel = document.getElementById('skeleton-outbound-container');
+      const welSkel = document.getElementById('skeleton-welcome-container');
+      if (outSkel) {
+        outSkel.innerHTML = outboundTemplates.outboundSkeletonZh || '<p class="text-xs text-slate-400">서식이 아직 동기화되지 않았습니다. (GAS에서 remoSyncToFirebaseAdmin_ 실행 시 자동 로드)</p>';
+      }
+      if (welSkel) {
+        welSkel.innerHTML = outboundTemplates.welcomeReplySkeletonZh || '<p class="text-xs text-slate-400">서식이 아직 동기화되지 않았습니다. (GAS에서 remoSyncToFirebaseAdmin_ 실행 시 자동 로드)</p>';
+      }
+    }
+
+    window.selectOutboundItem = (dId) => {
+      selectedOutboundId = dId;
+      renderOutboundList();
+    };
+
+    window.switchOutboundSubTab = (sub) => {
+      ['outbound', 'skeleton-outbound', 'skeleton-welcome'].forEach(s => {
+        const btn = document.getElementById('btn-subtab-' + s);
+        const pane = document.getElementById('subtab-pane-' + s);
+        if (s === sub) {
+          btn?.classList.add('bg-sky-400', 'text-slate-950', 'shadow-md', 'shadow-sky-400/20');
+          btn?.classList.remove('bg-slate-800', 'text-slate-300');
+          pane?.classList.remove('hidden');
+        } else {
+          btn?.classList.remove('bg-sky-400', 'text-slate-950', 'shadow-md', 'shadow-sky-400/20');
+          btn?.classList.add('bg-slate-800', 'text-slate-300');
+          pane?.classList.add('hidden');
+        }
+      });
+    };
+
+    document.getElementById('outbound-search')?.addEventListener('input', renderOutboundList);
+    document.getElementById('outbound-status-filter')?.addEventListener('change', renderOutboundList);
+
     function updateKpis() {
       document.getElementById('kpi-total-leads').textContent = leadsCache.length.toLocaleString();
       const activeLeads = leadsCache.filter(l => l.status === 'meeting_scheduled' || l.status === 'in_review').length;

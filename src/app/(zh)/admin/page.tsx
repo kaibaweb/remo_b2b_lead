@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getFirebaseAuth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { AdminOutboundTab } from '@/components/admin/AdminOutboundTab';
 import { AdminLeadsTab } from '@/components/admin/AdminLeadsTab';
 import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 import { AdminNotesTab } from '@/components/admin/AdminNotesTab';
 import { AdminEmailTab } from '@/components/admin/AdminEmailTab';
 import { AdminShortsTab } from '@/components/admin/AdminShortsTab';
 import {
+  Send,
   Users,
   BarChart3,
   FileText,
@@ -20,13 +22,13 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-type AdminTab = 'leads' | 'analytics' | 'notes' | 'email' | 'shorts';
+type AdminTab = 'outbound' | 'leads' | 'analytics' | 'notes' | 'email' | 'shorts';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
-  const [activeTab, setActiveTab] = useState<AdminTab>('leads');
+  const [activeTab, setActiveTab] = useState<AdminTab>('outbound');
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -131,7 +133,8 @@ export default function AdminDashboard() {
       <div className="border-b border-slate-800 bg-slate-950/40">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 flex gap-1 sm:gap-2 overflow-x-auto">
           {[
-            { key: 'leads', label: '리드 관리', icon: Users },
+            { key: 'outbound', label: '아웃바운드 발송 & HTML 프리뷰', icon: Send },
+            { key: 'leads', label: '인바운드 리드', icon: Users },
             { key: 'analytics', label: 'PostHog & GA4 분석', icon: BarChart3 },
             { key: 'notes', label: '회의록 (Meeting Notes)', icon: FileText },
             { key: 'email', label: '안내 메일 서식', icon: Mail },
@@ -155,6 +158,7 @@ export default function AdminDashboard() {
 
       {/* Tab Contents */}
       <main className="flex-1 p-4 md:p-8 max-w-[1440px] w-full mx-auto">
+        {activeTab === 'outbound' && <AdminOutboundTab />}
         {activeTab === 'leads' && <AdminLeadsTab user={user} />}
         {activeTab === 'analytics' && <AdminAnalyticsTab user={user} />}
         {activeTab === 'notes' && <AdminNotesTab user={user} />}

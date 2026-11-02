@@ -41,4 +41,8 @@ declare module 'lucide-react' {
   export const Pause: LucideIcon;
   export const Play: LucideIcon;
   export const Asterisk: LucideIcon;
+  export const Send: LucideIcon;
+  export const Search: LucideIcon;
+  export const FileCode: LucideIcon;
+  export const MailCheck: LucideIcon;
 }
