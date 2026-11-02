@@ -1254,6 +1254,7 @@ function remoDispatchRun() {
     SpreadsheetApp.flush();
     c.p.setProperty('DISPATCH_LAST_RUN', at);
     var flushDone = remoFlushCycleTelegramReport_(c, book, false);
+    try { remoSyncToFirebaseAdmin_(c, book); } catch(e) {}
     return {
       status: 'ACCEPTED',
       senderAccount: c.runnerEmail,
@@ -1342,6 +1343,8 @@ function remoDispatchStartNow() {
   var syncedBodies = remoSyncDraftBodies_(c, book);
   var inboundResult = remoRun();
   var dispatch = remoDispatchRun();
+  var adminSync = null;
+  try { adminSync = remoSyncToFirebaseAdmin_(c, book); } catch(e) { adminSync = { error: String(e.message || e) }; }
 
   var result = {
     runnerAccount: c.runnerEmail,
@@ -1352,6 +1355,7 @@ function remoDispatchStartNow() {
     syncedDraftBodiesToSheet: syncedBodies,
     inboundWatchResult: inboundResult,
     dispatch: dispatch,
+    firebaseAdminSync: adminSync,
     status: remoDispatchStatus()
   };
   console.log(JSON.stringify(result, null, 2));
@@ -1604,4 +1608,152 @@ function remoSyncToFirebaseAdmin_(c, book) {
   } catch (e) {
     return {synced: false, error: String(e.message || e), count: outboundItems.length};
   }
+}
+
+/**
+ * [관리자 연동] 구글 시트 원장의 큐(Queue)와 제안서(DraftBodies)를 Vercel 관리자(Firestore)로 즉시 동기화
+ */
+function remoSyncOutboundToFirestore() {
+  var c = remoConfig_();
+  var book = remoBook_(c);
+  var res = remoSyncToFirebaseAdmin_(c, book);
+  Logger.log('[Firebase Admin Sync Result] ' + JSON.stringify(res));
+  return res;
+}
+
+/**
+ * [GitHub 스냅샷 연동] 구글 시트 원장의 전체 큐/제안서 데이터를 ops/gas/outbound.snapshot.json으로 GitHub에 커밋·푸시
+ */
+function remoPushOutboundToGithub() {
+  var c = remoConfig_();
+  var book = remoBook_(c);
+  var p = c.p;
+  var token = (p.getProperty('GITHUB_TOKEN') || '').replace(/^'+/, '').trim();
+  var repo = (p.getProperty('GITHUB_REPO') || 'kaibaweb/remo_b2b_lead').replace(/^'+/, '').trim();
+  if (!token) {
+    Logger.log('[GitHub Push Error] GITHUB_TOKEN이 시트 Config 탭에 설정되지 않았습니다.');
+    return {pushed: false, reason: 'NO_GITHUB_TOKEN'};
+  }
+
+  var qSheet = remoSheet_(book, 'Queue', REMO_QUEUE_HEADERS);
+  var bSheet = remoSheet_(book, 'DraftBodies', REMO_BODY_HEADERS);
+  var sSheet = book.getSheetByName('SourcingPool');
+
+  var qRows = remoRows_(qSheet);
+  var bRows = remoRows_(bSheet);
+  var sRows = sSheet ? remoRows_(sSheet) : [];
+
+  var bodyByDraftId = {}, bodyByEmail = {};
+  bRows.forEach(function(r) {
+    var dId = String(r[0] || '').replace(/^'+/, '').trim();
+    var em = String(r[1] || '').toLowerCase().trim();
+    var item = {
+      draftId: dId,
+      email: em,
+      subject: String(r[2] || '').replace(/^'+/, ''),
+      digest: String(r[3] || ''),
+      htmlBody: String(r[4] || ''),
+      syncedAt: String(r[5] || '')
+    };
+    if (dId) bodyByDraftId[dId] = item;
+    if (em) bodyByEmail[em] = item;
+  });
+
+  var metaByEmail = {};
+  sRows.forEach(function(r) {
+    var em = String(r[6] || '').toLowerCase().trim();
+    if (em) {
+      metaByEmail[em] = {
+        companyId: String(r[0] || ''),
+        companyZh: String(r[1] || ''),
+        companyEn: String(r[2] || ''),
+        category: String(r[3] || ''),
+        city: String(r[4] || ''),
+        website: String(r[5] || ''),
+        wechatOrPhone: String(r[7] || ''),
+        signalType: String(r[8] || ''),
+        offerTrack: String(r[9] || ''),
+        fitScore: Number(r[10] || 0),
+        productKeywords: String(r[11] || ''),
+        evidenceSummary: String(r[12] || '')
+      };
+    }
+  });
+
+  var items = qRows.map(function(r) {
+    var dId = String(r[0] || '').replace(/^'+/, '').trim();
+    var em = String(r[1] || '').toLowerCase().trim();
+    var bodyObj = bodyByDraftId[dId] || bodyByEmail[em] || {};
+    var metaObj = metaByEmail[em] || {};
+    return {
+      draftId: dId,
+      email: em,
+      company: String(r[2] || '').replace(/^'+/, ''),
+      sourceUrl: String(r[3] || ''),
+      reviewedAt: String(r[4] || ''),
+      reviewer: String(r[5] || ''),
+      approvalRef: String(r[6] || ''),
+      digest: String(r[7] || ''),
+      status: String(r[8] || 'READY'),
+      sentAt: String(r[9] || ''),
+      gmailId: String(r[10] || ''),
+      threadId: String(r[11] || ''),
+      errorCode: String(r[12] || ''),
+      subject: bodyObj.subject || '',
+      htmlBody: bodyObj.htmlBody || '',
+      city: metaObj.city || '',
+      category: metaObj.category || '',
+      fitScore: metaObj.fitScore || 95,
+      productKeywords: metaObj.productKeywords || '',
+      evidenceSummary: metaObj.evidenceSummary || ''
+    };
+  });
+
+  var jsonContent = JSON.stringify({
+    updatedAt: new Date().toISOString(),
+    sheetId: c.book,
+    totalCount: items.length,
+    items: items
+  }, null, 2);
+
+  var filePath = 'ops/gas/outbound.snapshot.json';
+  var apiUrl = 'https://api.github.com/repos/' + repo + '/contents/' + filePath;
+
+  var currentSha = null;
+  try {
+    var checkRes = UrlFetchApp.fetch(apiUrl + '?ref=main', {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'REMO-GAS-LeadBot'
+      },
+      muteHttpExceptions: true
+    });
+    if (checkRes.getResponseCode() === 200) {
+      currentSha = JSON.parse(checkRes.getContentText()).sha;
+    }
+  } catch(e) {}
+
+  var commitPayload = {
+    message: 'chore(gas): sync full outbound queue & bodies snapshot (' + items.length + ' leads)',
+    content: Utilities.base64Encode(Utilities.newBlob(jsonContent).getBytes()),
+    branch: 'main'
+  };
+  if (currentSha) commitPayload.sha = currentSha;
+
+  var putRes = UrlFetchApp.fetch(apiUrl, {
+    method: 'put',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'REMO-GAS-LeadBot'
+    },
+    payload: JSON.stringify(commitPayload),
+    muteHttpExceptions: true
+  });
+
+  var code = putRes.getResponseCode();
+  Logger.log('[GitHub Outbound Push] ' + code + ' ' + putRes.getContentText().slice(0, 200));
+  return {pushed: code >= 200 && code < 300, statusCode: code, count: items.length};
 }
