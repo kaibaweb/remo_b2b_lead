@@ -1,28 +1,37 @@
 'use client';
 import Image from 'next/image';
+import { useState } from 'react';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
 
-/** A static overview makes the breadth of field work visible without waiting for a carousel. */
+const exhibitions = [
+  { id: 'switch', name: 'SWITCH', year: '2024', post: '223651467163' },
+  { id: 'world-it', name: 'WORLD IT SHOW', year: '2025', post: '223866029646' },
+  { id: 'spoex', name: 'SPOEX', year: '2025', post: '223826670566' },
+  { id: 'gsic', name: 'GSIC APAC SUMMIT', year: '2025', post: '223940064733' },
+  { id: 'aiot', name: 'AIoT Korea', year: '2025', post: '224131518955' },
+  { id: 'ventureblick', name: 'VentureBlick Unboxing Day', year: '2024', post: '223649664590' },
+];
+
+/** Company-owned exhibition photos; the second group is only a seamless visual duplicate. */
 export function EvidenceGallery() {
-  const {t}=useTranslation();
-  const cards=[
-    {id:'nhis',name:t('韩国国民健康保险公团'),kind:t('产品应用'),num:904},
-    {id:'popup',name:'Sleep&Sleep · Hyundai Pangyo',kind:t('试点验证'),num:936},
-    {id:'pilates',name:'Newbody Pilates · Sinchon',kind:t('产品应用'),num:889},
-    {id:'rehabilitation',name:t('韩国国立康复院'),kind:t('产品应用'),num:903},
-    {id:'thailand',name:'Thailand · REMOBODY-S',kind:t('试点验证'),num:905},
-    {id:'hospital',name:'Namujeongwon Women’s Hospital',kind:t('产品应用'),num:888},
-    {id:'group-exercise',name:t('韩国国立康复院'),kind:t('试点验证'),num:898},
-    {id:'welfare',name:'Pungnap Community Welfare Center',kind:t('试点验证'),num:897},
-    {id:'clinical',name:'St. Vincent’s Hospital',kind:t('产品应用'),num:902},
-  ];
-  return <div className="evidence-gallery" aria-labelledby="gallery-title">
-    <div className="evidence-gallery-heading"><h3 id="gallery-title">{t('从真实现场，走向新的市场。')}</h3></div>
-    <div className="partner-photo-grid">
-      {cards.map(card=><a className="partner-photo" href={`https://www.remo.re.kr/board/useCases/board_view.php?page=1&num=${card.num}`} target="_blank" rel="noopener noreferrer" key={card.id}>
-        <div className="partner-photo-image"><Image src={`/images/remo/${card.id}.${['nhis','pilates','rehabilitation'].includes(card.id)?'png':'webp'}`} alt={`${card.name} · ${card.kind}`} fill sizes="(max-width: 640px) 45vw, (max-width: 900px) 44vw, 360px"/></div>
-        <p><span>{card.name}</span><small>{card.kind} ↗</small></p>
-      </a>)}
+  const { t } = useTranslation();
+  const [paused, setPaused] = useState(false);
+  const [manual, setManual] = useState(false);
+  const interact = () => { setPaused(true); setManual(true); };
+  return <div className="exhibition-gallery" id="global-presence" aria-labelledby="exhibition-title">
+    <div className="exhibition-gallery-heading">
+      <h3 id="exhibition-title">{t('国内展示，海外对话。')}</h3>
+      <button type="button" className="exhibition-motion-button" aria-controls="exhibition-photo-track" aria-pressed={paused} onClick={() => { setManual(false); setPaused(value => !value); }}>{paused ? t('播放滚动') : t('暂停滚动')}</button>
+    </div>
+    <div className="exhibition-window" dir="ltr" onPointerDown={interact} onWheel={interact} onFocus={interact}>
+      <div id="exhibition-photo-track" className={`exhibition-track${paused ? ' is-paused' : ''}${manual ? ' is-manual' : ''}`}>
+        {[0, 1].map(copy => <div className="exhibition-group" key={copy} aria-hidden={copy === 1 ? true : undefined}>
+          {exhibitions.map(event => <a className="exhibition-photo" key={event.id} href={`https://blog.naver.com/finefiter/${event.post}`} target="_blank" rel="noopener noreferrer" tabIndex={copy === 1 ? -1 : undefined}>
+            <div className="exhibition-photo-image"><Image src={`/images/remo/exhibitions/${event.id}.webp`} alt={copy === 0 ? `${event.name} ${event.year}` : ''} fill sizes="(max-width: 640px) 220px, 280px"/></div>
+            <p><strong>{event.name}</strong><span>{event.year} ↗</span></p>
+          </a>)}
+        </div>)}
+      </div>
     </div>
   </div>;
 }
