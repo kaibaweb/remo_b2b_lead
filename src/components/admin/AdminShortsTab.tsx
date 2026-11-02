@@ -9,7 +9,7 @@ interface Props {
   user: User;
 }
 
-export function AdminShortsTab({ user }: Props) {
+export function AdminShortsTab({ user: _user }: Props) {
   const [shortsList, setShortsList] = useState<string[]>([]);
   const [newShortUrl, setNewShortUrl] = useState('');
   const [savingShorts, setSavingShorts] = useState(false);

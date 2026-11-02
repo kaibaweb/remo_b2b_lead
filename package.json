@@ -16,6 +16,7 @@
     "deploy:firebase": "firebase deploy --only hosting,firestore:rules"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1161.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "firebase": "^12.19.0",
@@ -24,12 +25,12 @@
     "google-auth-library": "11.1.0",
     "lucide-react": "^1.48.0",
     "next": "16.3.6",
+    "posthog-js": "^1.228.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.29.0",
     "tailwind-merge": "^3.7.0",
-    "zod": "^4.6.5",
-    "posthog-js": "^1.228.0"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

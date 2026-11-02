@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { getFirebaseAuth } from '@/lib/firebase-client';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Shield } from 'lucide-react';
 
 export default function AdminLogin() {

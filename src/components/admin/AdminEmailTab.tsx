@@ -9,7 +9,7 @@ interface Props {
   user: User;
 }
 
-export function AdminEmailTab({ user }: Props) {
+export function AdminEmailTab({ user: _user }: Props) {
   const [emailSettings, setEmailSettings] = useState({
     senderEmail: 'remo@boam.tech',
     subject: '[REMO] 合作咨询已收到',

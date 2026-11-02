@@ -56,7 +56,7 @@ def clean_email(value):
 
 
 def load_config(path):
-    cfg = json.loads(Path(path).read_text())
+    cfg = json.loads(Path(path).read_text(encoding="utf-8-sig"))
     for key, maximum in (("max_jobs", 100), ("max_search_requests", 20), ("max_daily_sends", 100), ("evidence_max_days", 90)):
         if type(cfg.get(key)) is not int or not 1 <= cfg[key] <= maximum:
             raise ValueError(f"{key} must be between 1 and {maximum}")

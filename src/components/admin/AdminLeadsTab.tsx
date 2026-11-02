@@ -13,7 +13,7 @@ interface Props {
   user: User;
 }
 
-export function AdminLeadsTab({ user }: Props) {
+export function AdminLeadsTab({ user: _user }: Props) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [statusFilter, setStatusFilter] = useState('all');

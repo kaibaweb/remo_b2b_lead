@@ -13,7 +13,7 @@ export const POLICY_VERSION = '2026-10-31';
 // save must finish before notifications start. A failed notification cannot lose an inquiry.
 export async function createInquiry(fields, tracking, save, notifications) {
   const parsed = leadFormSchema.parse(fields);
-  const { privacyConsent, honeypot, ...business } = parsed;
+  const { privacyConsent, honeypot: _honeypot, ...business } = parsed;
   const timestamp = new Date().toISOString();
   const record = { ...business, ...tracking, status: 'new', memo: '', createdAt: timestamp, updatedAt: timestamp,
     consent: { purpose: 'inquiry_response', accepted: privacyConsent, policyVersion: POLICY_VERSION, recordedAt: timestamp } };

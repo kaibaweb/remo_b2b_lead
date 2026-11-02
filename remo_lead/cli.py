@@ -30,6 +30,16 @@ def demo(cfg):
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+    if hasattr(sys.stderr, "reconfigure"):
+        try:
+            sys.stderr.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     parser = argparse.ArgumentParser(description="REMO China B2B sourcing and outreach harness")
     parser.add_argument("--config", default="config.local.json")
     parser.add_argument("--db", default=".state/remo.sqlite3")
