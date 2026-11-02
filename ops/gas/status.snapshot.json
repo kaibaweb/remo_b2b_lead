@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-11-02T04:30:08.200Z",
+  "sheetId": "1dz9shE_3vIY43d7ClaTK6ODpzMCIDRKOZT92HS25b-s",
+  "senderAccount": "remo@boam.tech",
+  "landingUrl": "https://remob2blead.vercel.app/",
+  "status": {
+    "enabled": false,
+    "dispatchWindow": "Every day 09:00-20:00 KST",
+    "schedulerInstalled": true,
+    "inboundWatchInstalled": true,
+    "welcomeAutoReply": "yes",
+    "queue": {
+      "SENT": 16,
+      "READY": 18
+    },
+    "syncedDraftBodiesInSheet": 34,
+    "todayBatchProgressCount": 0,
+    "budget": {
+      "day": "2026-11-01",
+      "reserved": 16
+    }
+  }
+}
