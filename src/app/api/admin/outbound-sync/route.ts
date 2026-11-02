@@ -54,3 +54,4 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: err?.message || 'Read error' }, { status: 500 });
   }
 }
+

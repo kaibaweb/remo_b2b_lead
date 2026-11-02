@@ -91,11 +91,17 @@
         </div>
 
         <div class="flex items-center gap-3 text-xs">
+          <!-- Cache Indicator (0 won cost) -->
+          <div id="cache-sync-indicator" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="cache-status-text" class="text-[11px] font-medium">💾 브라우저 로컬 캐시 (비용 0원)</span>
+          </div>
+
           <!-- Refresh Button (Zero Cost: Single shot query) -->
-          <button id="btn-global-refresh" title="데이터 새로고침 (단발 쿼리/비용 0원)"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-all">
+          <button id="btn-global-refresh" title="최신 데이터 1회 동기화 (단발 쿼리 / 최소화)"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 transition-all cursor-pointer">
             <svg id="icon-refresh" class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <span class="hidden sm:inline">새로고침</span>
+            <span class="font-medium">1회 동기화</span>
           </button>
 
           <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
@@ -361,12 +367,29 @@
                   class="flex-1 w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 resize-none font-mono"></textarea>
               </div>
 
-              <!-- Attachment Upload (10MB limit) -->
-              <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1">파일 첨부 (파일당 최대 10MB 제한)</label>
-                <input type="file" id="edit-file-input" multiple
-                  class="block w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-300 hover:file:bg-blue-600/30 cursor-pointer" />
-                <div id="edit-attachments-preview" class="flex flex-wrap gap-2 mt-2"></div>
+              <!-- Attachment Upload & External Link (IndexedDB Local Vault + 0-Won Cost) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-semibold text-slate-300">첨부 파일 (브라우저 로컬 보관 · Firestore 0원) &amp; 웹 링크</label>
+                  <span class="text-[10px] text-emerald-400">대용량 파일도 용량초과 없이 안전 저장</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <input type="file" id="edit-file-input" multiple
+                      class="block w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-300 hover:file:bg-blue-600/30 cursor-pointer" />
+                  </div>
+                  <div class="flex gap-1.5">
+                    <input type="url" id="edit-link-url" placeholder="https://drive.google.com/... 또는 문서 URL"
+                      class="flex-1 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500" />
+                    <button type="button" id="btn-add-link"
+                      class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors shrink-0 cursor-pointer">
+                      + 링크
+                    </button>
+                  </div>
+                </div>
+
+                <div id="edit-attachments-preview" class="flex flex-wrap gap-2 mt-1 min-h-[28px]"></div>
               </div>
 
               <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
@@ -581,6 +604,146 @@
     let currentNoteId = null;
     let tempAttachments = [];
 
+    // =========================================================================
+    // LOCAL ATTACHMENT VAULT (IndexedDB - Zero Firestore cost, 0-Byte Document Bloat)
+    // =========================================================================
+    const IDB_NAME = 'RemoAdminVault_v1';
+    const IDB_STORE = 'note_attachments';
+    let idbInstance = null;
+
+    function getIDB() {
+      if (idbInstance) return Promise.resolve(idbInstance);
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => {
+          idbInstance = e.target.result;
+          resolve(idbInstance);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function storeLocalFile(id, file) {
+      try {
+        const db = await getIDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(IDB_STORE, 'readwrite');
+          const store = tx.objectStore(IDB_STORE);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => reject(tx.error);
+          store.put({
+            id,
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            blob: file,
+            savedAt: Date.now()
+          });
+        });
+      } catch (e) {
+        console.warn('[IDB] Failed to store local file:', e);
+        return false;
+      }
+    }
+
+    async function retrieveLocalFile(id) {
+      try {
+        const db = await getIDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const store = tx.objectStore(IDB_STORE);
+          const req = store.get(id);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // =========================================================================
+    // CHROME LOCAL STORAGE CACHING (극최소화: 0 WON FIRESTORE LEAK GUARD)
+    // =========================================================================
+    const CACHE_KEYS = {
+      LEADS: 'remo_cache_leads_v2',
+      NOTES: 'remo_cache_notes_v2',
+      OUTBOUND: 'remo_cache_outbound_v2',
+      TEMPLATES: 'remo_cache_templates_v2',
+      SHORTS: 'remo_cache_shorts_v2',
+      TIME: 'remo_cache_time_v2'
+    };
+
+    function updateCacheStatusBadge(timestamp) {
+      const badgeText = document.getElementById('cache-status-text');
+      if (!badgeText) return;
+      const t = timestamp || localStorage.getItem(CACHE_KEYS.TIME);
+      if (!t) {
+        badgeText.textContent = '💾 브라우저 로컬 캐시 (비용 0원)';
+        return;
+      }
+      try {
+        const d = new Date(t);
+        const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        badgeText.textContent = `💾 로컬 캐시 (${timeStr} 동기화 / 비용 0원)`;
+      } catch (e) {
+        badgeText.textContent = '💾 브라우저 로컬 캐시 (비용 0원)';
+      }
+    }
+
+    function saveAllToLocalStorage() {
+      try {
+        localStorage.setItem(CACHE_KEYS.LEADS, JSON.stringify(leadsCache));
+        localStorage.setItem(CACHE_KEYS.NOTES, JSON.stringify(notesCache));
+        localStorage.setItem(CACHE_KEYS.OUTBOUND, JSON.stringify(outboundCache));
+        localStorage.setItem(CACHE_KEYS.TEMPLATES, JSON.stringify(outboundTemplates));
+        localStorage.setItem(CACHE_KEYS.SHORTS, JSON.stringify(shortsList));
+        const now = new Date().toISOString();
+        localStorage.setItem(CACHE_KEYS.TIME, now);
+        updateCacheStatusBadge(now);
+      } catch (e) {
+        console.warn('[LocalStorage] Save warning:', e);
+      }
+    }
+
+    function loadAllFromLocalStorage() {
+      try {
+        const t = localStorage.getItem(CACHE_KEYS.TIME);
+        if (!t) return false;
+
+        const l = localStorage.getItem(CACHE_KEYS.LEADS);
+        const n = localStorage.getItem(CACHE_KEYS.NOTES);
+        const o = localStorage.getItem(CACHE_KEYS.OUTBOUND);
+        const tpl = localStorage.getItem(CACHE_KEYS.TEMPLATES);
+        const s = localStorage.getItem(CACHE_KEYS.SHORTS);
+
+        leadsCache = l ? JSON.parse(l) : [];
+        notesCache = n ? JSON.parse(n) : [];
+        outboundCache = o ? JSON.parse(o) : [];
+        outboundTemplates = tpl ? JSON.parse(tpl) : {};
+        if (s) {
+          shortsList = JSON.parse(s);
+          renderShorts();
+        }
+
+        renderLeads();
+        renderNotesList();
+        renderOutboundList();
+        renderOutboundSkeletons();
+        updateKpis();
+        updateCacheStatusBadge(t);
+        return true;
+      } catch (e) {
+        console.warn('[LocalStorage] Parse error:', e);
+        return false;
+      }
+    }
+
     // DOM Elements
     const screenLoading = document.getElementById('screen-loading');
     const screenLogin = document.getElementById('screen-login');
@@ -606,7 +769,13 @@
         userEmailBadge.textContent = user.email;
         screenLogin.classList.add('hidden');
         screenDashboard.classList.remove('hidden');
-        await loadAllData();
+
+        // 1. Try instant load from Chrome localStorage (0 won cost, 0 network reads)
+        const hasCache = loadAllFromLocalStorage();
+        if (!hasCache) {
+          // Only fetch 1-shot from Firestore if this browser has never loaded data
+          await loadAllData();
+        }
       } else {
         currentUser = null;
         if (user) await signOut(auth);
@@ -653,20 +822,28 @@
     });
 
     // =========================================================================
-    // DATA LOADING (SINGLE-SHOT GETDOCS - 0 WON COST)
+    // DATA LOADING (SINGLE-SHOT GETDOCS - 0 WON COST / LEAK PROTECTED)
     // =========================================================================
     async function loadAllData() {
       iconRefresh.classList.add('animate-spin');
+      const badgeText = document.getElementById('cache-status-text');
+      if (badgeText) badgeText.textContent = '🔄 최신 데이터 1회 동기화 중...';
+
       try {
         await Promise.all([loadOutbound(), loadLeads(), loadNotes(), loadEmailTemplates(), loadShorts()]);
+        saveAllToLocalStorage();
       } catch (err) {
         console.error('Data load error:', err);
       } finally {
         iconRefresh.classList.remove('animate-spin');
+        updateCacheStatusBadge();
       }
     }
 
-    btnGlobalRefresh.addEventListener('click', loadAllData);
+    btnGlobalRefresh.addEventListener('click', async () => {
+      await loadAllData();
+      alert('✅ Firestore 최신 데이터를 1회 동기화하여 브라우저 로컬 캐시에 저장했습니다. (추가 읽기 0원 유지)');
+    });
 
     // =========================================================================
     // 1. INBOUND LEADS
@@ -763,6 +940,7 @@
         });
         const target = leadsCache.find(l => l.id === id);
         if (target) target.status = newStatus;
+        saveAllToLocalStorage();
         renderLeads();
         updateKpis();
       } catch (err) {
@@ -885,7 +1063,7 @@
       const contentEl = document.getElementById('view-note-content');
       contentEl.innerHTML = formatContentWithLinks(note.content || '');
 
-      // Attachments
+      // Attachments Rendering (IndexedDB Vault + External Links)
       const attSection = document.getElementById('view-note-attachments-section');
       const attList = document.getElementById('view-note-attachments-list');
       const atts = note.attachments || [];
@@ -893,20 +1071,78 @@
 
       if (atts.length > 0) {
         attSection.classList.remove('hidden');
-        attList.innerHTML = atts.map(att => {
+        attList.innerHTML = '<span class="text-xs text-slate-500">첨부 항목 로드 중...</span>';
+
+        Promise.all(atts.map(async (att) => {
           const isImg = (att.type || '').startsWith('image/');
-          const sizeKb = Math.round((att.size || 0) / 1024);
+          const sizeKb = att.size ? Math.round(att.size / 1024) : 0;
+
+          if (att.isLink || (att.url && !att.isLocal)) {
+            const linkUrl = att.url || '#';
+            return `
+              <a href="${linkUrl}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 transition-colors text-xs text-slate-300">
+                <span class="text-base">🔗</span>
+                <div class="truncate max-w-[160px]">
+                  <div class="truncate font-medium text-sky-400 hover:underline">${escapeHtml(att.name || linkUrl)}</div>
+                  <div class="text-[10px] text-slate-500">외부 웹 링크 ↗</div>
+                </div>
+              </a>
+            `;
+          }
+
+          if (att.isLocal && att.id) {
+            const localRecord = await retrieveLocalFile(att.id);
+            if (localRecord && localRecord.blob) {
+              const blobUrl = URL.createObjectURL(localRecord.blob);
+              return `
+                <a href="${blobUrl}" download="${escapeHtml(att.name)}"
+                  class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition-colors text-xs text-slate-300">
+                  ${isImg ? `<img src="${blobUrl}" class="w-8 h-8 object-cover rounded-lg" />` : `<span class="text-base">📄</span>`}
+                  <div class="truncate max-w-[160px]">
+                    <div class="truncate font-medium text-white">${escapeHtml(att.name)}</div>
+                    <div class="text-[10px] text-emerald-400">${sizeKb} KB (로컬 다운로드)</div>
+                  </div>
+                </a>
+              `;
+            } else {
+              return `
+                <div class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
+                  <span class="text-base">📄</span>
+                  <div class="truncate max-w-[160px]">
+                    <div class="truncate font-medium text-slate-300">${escapeHtml(att.name)}</div>
+                    <div class="text-[10px] text-slate-500">${sizeKb} KB (로컬 원본 브라우저 보관)</div>
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          // Legacy URL fallback
+          if (att.url) {
+            return `
+              <a href="${att.url}" download="${escapeHtml(att.name)}" target="_blank"
+                class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-blue-500 transition-colors text-xs text-slate-300">
+                <span class="text-base">📄</span>
+                <div class="truncate max-w-[160px]">
+                  <div class="truncate font-medium text-white">${escapeHtml(att.name)}</div>
+                  <div class="text-[10px] text-slate-500">${sizeKb} KB</div>
+                </div>
+              </a>
+            `;
+          }
+
           return `
-            <a href="${att.url}" download="${escapeHtml(att.name)}" target="_blank"
-              class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-blue-500 transition-colors text-xs text-slate-300">
-              ${isImg ? `<img src="${att.url}" class="w-8 h-8 object-cover rounded-lg" />` : `<span class="text-base">📄</span>`}
-              <div class="truncate max-w-[140px]">
-                <div class="truncate font-medium text-white">${escapeHtml(att.name)}</div>
-                <div class="text-[10px] text-slate-500">${sizeKb} KB</div>
+            <div class="inline-flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
+              <span class="text-base">📄</span>
+              <div class="truncate max-w-[160px]">
+                <div class="truncate font-medium text-slate-300">${escapeHtml(att.name || '파일')}</div>
               </div>
-            </a>
+            </div>
           `;
-        }).join('');
+        })).then(htmlArr => {
+          attList.innerHTML = htmlArr.join('');
+        });
       } else {
         attSection.classList.add('hidden');
       }
@@ -933,6 +1169,8 @@
       document.getElementById('edit-note-date').value = new Date().toISOString().slice(0, 10);
       document.getElementById('edit-note-tags').value = '';
       document.getElementById('edit-note-content').value = '';
+      const linkInput = document.getElementById('edit-link-url');
+      if (linkInput) linkInput.value = '';
       renderAttachmentsPreview();
 
       document.getElementById('note-view-pane').classList.add('hidden');
@@ -963,44 +1201,73 @@
       if (currentNoteId) selectNote(currentNoteId);
     });
 
-    // File Input with strict 10MB limit
+    // File Input (IndexedDB Vault - 0 Firestore Cost, No Size Limit Error)
     document.getElementById('edit-file-input').addEventListener('change', async (e) => {
       const files = Array.from(e.target.files);
-      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+      const MAX_SIZE = 50 * 1024 * 1024; // 50MB
 
       for (const f of files) {
         if (f.size > MAX_SIZE) {
-          alert(`'${f.name}' 파일이 10MB 제한을 초과했습니다.`);
+          alert(`'${f.name}' 파일이 50MB 제한을 초과했습니다.`);
           continue;
         }
 
-        const base64 = await readFileAsDataUrl(f);
+        const fileId = 'att_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+        await storeLocalFile(fileId, f);
+
         tempAttachments.push({
+          id: fileId,
           name: f.name,
           size: f.size,
-          type: f.type,
-          url: base64
+          type: f.type || 'application/octet-stream',
+          isLocal: true
         });
       }
       renderAttachmentsPreview();
       e.target.value = '';
     });
 
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    // Add External Link (Google Drive / Web URL)
+    document.getElementById('btn-add-link')?.addEventListener('click', () => {
+      const urlInput = document.getElementById('edit-link-url');
+      const rawUrl = (urlInput?.value || '').trim();
+      if (!rawUrl) return;
+
+      let validUrl = rawUrl;
+      if (!/^https?:\/\//i.test(validUrl)) {
+        validUrl = 'https://' + validUrl;
+      }
+
+      const linkId = 'link_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+      let linkName = validUrl;
+      try {
+        const u = new URL(validUrl);
+        linkName = u.hostname + (u.pathname.length > 1 ? u.pathname.slice(0, 24) + '...' : '');
+      } catch (e) {}
+
+      tempAttachments.push({
+        id: linkId,
+        name: linkName,
+        url: validUrl,
+        isLink: true
       });
-    }
+
+      renderAttachmentsPreview();
+      urlInput.value = '';
+    });
 
     function renderAttachmentsPreview() {
       const container = document.getElementById('edit-attachments-preview');
+      if (tempAttachments.length === 0) {
+        container.innerHTML = '<span class="text-[11px] text-slate-600 italic">첨부된 파일이나 링크가 없습니다.</span>';
+        return;
+      }
       container.innerHTML = tempAttachments.map((att, i) => `
         <div class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
-          <span class="truncate max-w-[120px]">${escapeHtml(att.name)}</span>
-          <button type="button" onclick="removeTempAttachment(${i})" class="text-red-400 hover:text-red-300 font-bold ml-1">×</button>
+          <span>${att.isLink ? '🔗' : '📄'}</span>
+          <span class="truncate max-w-[140px] text-white font-medium">${escapeHtml(att.name)}</span>
+          ${att.size ? `<span class="text-[10px] text-slate-500">${Math.round(att.size / 1024)} KB</span>` : ''}
+          <button type="button" onclick="removeTempAttachment(${i})" class="text-red-400 hover:text-red-300 font-bold ml-1 cursor-pointer">×</button>
         </div>
       `).join('');
     }
@@ -1055,6 +1322,7 @@
           currentNoteId = newDocRef.id;
         }
 
+        saveAllToLocalStorage();
         renderNotesList();
         selectNote(currentNoteId);
         updateKpis();
@@ -1075,6 +1343,7 @@
         await deleteDoc(doc(db, 'remo_admin_notes', currentNoteId));
         notesCache = notesCache.filter(n => n.id !== currentNoteId);
         currentNoteId = null;
+        saveAllToLocalStorage();
         renderNotesList();
         document.getElementById('view-note-title').textContent = '회의록을 선택해주세요';
         document.getElementById('view-note-date').textContent = '';
@@ -1192,6 +1461,7 @@
           items: shortsList,
           updatedAt: new Date().toISOString()
         }, { merge: true });
+        saveAllToLocalStorage();
         alert('숏츠 영상 설정이 저장되었습니다.');
       } catch (err) {
         alert('숏츠 저장 실패: ' + err.message);
@@ -1208,6 +1478,51 @@
     // =========================================================================
     // 0. OUTBOUND SYNC & PREVIEW (remo_outbound_emails & remo_email_templates)
     // =========================================================================
+    const BUILTIN_SKELETONS = {
+      outboundSkeletonZh: `
+<div style="font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;max-width:680px;margin:0 auto;border:1px solid #d9e2ec;border-radius:8px;overflow:hidden;background:#ffffff;color:#1f2933;">
+  <div style="background:#16364d;padding:24px 28px;color:#ffffff;">
+    <div style="font-size:12px;letter-spacing:1px;color:#7cc4fa;font-weight:700;margin-bottom:6px;">ASIA PHYSICAL AI COMMERCIAL NETWORK · REMO</div>
+    <div style="font-size:19px;font-weight:700;line-height:1.4;">关于 {{company}} ({{heroProducts}}) 具身智能多模态/3D合成数据供应与海外PoC落地对接</div>
+  </div>
+  <div style="padding:24px 28px;font-size:14px;line-height:1.8;">
+    <p style="margin-top:0;">尊敬的 <strong>{{company}}</strong> 负责人：</p>
+    <p>您好！我们关注到贵司在 <strong>{{heroProducts}}</strong> 领域的最新突破。作为中韩跨国具身智能商业化网络，<strong>REMO</strong> 专注于为中国机器人与具身AI领军企业解决数据瓶颈与海外商业化落地挑战。</p>
+    <div style="background:#f4f7fa;border-left:4px solid #16364d;padding:16px 20px;margin:18px 0;border-radius:4px;">
+      <div style="font-weight:700;color:#16364d;font-size:15px;margin-bottom:8px;">[{{company}} × REMO 核心合作切入点]</div>
+      <ul style="margin:0;padding-left:18px;color:#334155;">
+        <li style="margin-bottom:6px;"><strong>真实场景与 Isaac Sim 3D 动作合成数据：</strong>提供高质量非结构化工业/商业遥操作数据，解决泛化训练壁垒。</li>
+        <li style="margin-bottom:6px;"><strong>韩国及亚洲市场渠道分销与付费 PoC：</strong>对接韩国制造业终端、高端仓储物流与商业连锁。</li>
+        <li style="margin-bottom:0;"><strong>11/26~11/29 深圳展会现场 1:1 闭门会面：</strong>核心团队现场驻点，可当面演示数据样本并敲定PoC细节。</li>
+      </ul>
+    </div>
+    <p>欢迎微信（WeChat: <strong>zeeeeeyul</strong>）或直接回复本邮件预约时间。</p>
+    <div style="text-align:center;margin:24px 0 12px;">
+      <a href="https://remob2blead.vercel.app" target="_blank" style="display:inline-block;background:#16364d;color:#ffffff;padding:11px 20px;text-decoration:none;font-weight:700;border-radius:6px;font-size:13px;">查看 REMO 技术方案与案例</a>
+    </div>
+  </div>
+</div>`,
+      welcomeReplySkeletonZh: `
+<div style="background:#f3f5f8;padding:24px 12px;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#18384b;">
+  <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dfe5ec;border-radius:6px;overflow:hidden;">
+    <div style="background:#16364d;padding:24px 28px;color:#ffffff;">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#60a5fa;">ASIA PHYSICAL AI COMMERCIAL NETWORK · REMO</p>
+      <h1 style="margin:0;font-size:19px;font-weight:700;color:#ffffff;">感谢 {{company}} 的回复 — 具身智能数据与海外渠道合作对接</h1>
+    </div>
+    <div style="padding:24px 28px;font-size:14px;line-height:1.8;color:#2c3e50;">
+      <p style="margin:0 0 14px;">您好，<strong>{{name}}</strong>（<strong>{{company}}</strong>）：<br>非常感谢您的回复！我们正在根据贵司的产品线整理专属合作资料。</p>
+      <div style="background:#f4f7fa;border:1px solid #dce4ec;border-left:4px solid #16364d;border-radius:6px;padding:16px 18px;margin:18px 0;">
+        <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#16364d;">[可对接的 3 大核心合作模块]</p>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#334155;">1. <strong>多模态数据与 3D 合成数据供应：</strong>针对灵巧手/双臂自由度定制非结构化数据采集。</p>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#334155;">2. <strong>韩国及亚洲总代分销 · 付费 PoC · 本地 SI：</strong>对接智能制造、物流仓储及科研院所。</p>
+        <p style="margin:0;font-size:13px;line-height:1.7;color:#334155;">3. <strong>11/26–11/29 深圳展会现场 1:1 面谈：</strong>团队将于深圳南山/宝安驻点面谈。</p>
+      </div>
+      <p style="margin:0 0 16px;">欢迎微信（WeChat: <strong>zeeeeeyul</strong>）直接联系，或回复本邮件告知方便的时间段。</p>
+    </div>
+  </div>
+</div>`
+    };
+
     let outboundCache = [];
     let outboundTemplates = {};
     let selectedOutboundId = null;
@@ -1231,6 +1546,7 @@
         document.getElementById('tab-outbound-count').textContent = outboundCache.length;
       } catch (err) {
         console.error('Outbound load error:', err);
+        renderOutboundSkeletons();
       }
     }
 
@@ -1317,12 +1633,11 @@
     function renderOutboundSkeletons() {
       const outSkel = document.getElementById('skeleton-outbound-container');
       const welSkel = document.getElementById('skeleton-welcome-container');
-      if (outSkel) {
-        outSkel.innerHTML = outboundTemplates.outboundSkeletonZh || '<p class="text-xs text-slate-400">서식이 아직 동기화되지 않았습니다. (GAS에서 remoSyncToFirebaseAdmin_ 실행 시 자동 로드)</p>';
-      }
-      if (welSkel) {
-        welSkel.innerHTML = outboundTemplates.welcomeReplySkeletonZh || '<p class="text-xs text-slate-400">서식이 아직 동기화되지 않았습니다. (GAS에서 remoSyncToFirebaseAdmin_ 실행 시 자동 로드)</p>';
-      }
+      const zhLead = (outboundTemplates && outboundTemplates.outboundSkeletonZh) || BUILTIN_SKELETONS.outboundSkeletonZh;
+      const zhWel = (outboundTemplates && outboundTemplates.welcomeReplySkeletonZh) || BUILTIN_SKELETONS.welcomeReplySkeletonZh;
+
+      if (outSkel) outSkel.innerHTML = zhLead;
+      if (welSkel) welSkel.innerHTML = zhWel;
     }
 
     window.selectOutboundItem = (dId) => {

@@ -26,6 +26,15 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // 4. 아웃바운드 발송 이메일 및 템플릿 (보안 격리):
+    //    오직 gitkaiba@gmail.com 관리자만 읽기/쓰기 가능
+    match /remo_outbound_emails/{emailId} {
+      allow read, write: if isAdmin();
+    }
+    match /remo_email_templates/{templateId} {
+      allow read, write: if isAdmin();
+    }
     
     // 그 외 모든 문서 접근 차단 (Default Deny)
     match /{document=**} {

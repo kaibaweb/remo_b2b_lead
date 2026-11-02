@@ -12,7 +12,7 @@
     "check:locales:browser": "node scripts/check-locales-browser.mjs",
     "postinstall": "node scripts/ensure-firestore-types.mjs",
     "deploy:hosting": "node scripts/deploy-hosting.mjs",
-    "deploy:rules": "firebase deploy --only firestore:rules",
+    "deploy:rules": "node scripts/deploy-rules.mjs",
     "deploy:firebase": "firebase deploy --only hosting,firestore:rules"
   },
   "dependencies": {
