@@ -28,11 +28,7 @@ export function WeChatCopy() {
     } catch {
       setState('error');
     }
-    try {
-      if (typeof window !== 'undefined' && !window.navigator?.webdriver) {
-        window.location.href = businessContacts.wechatHref;
-      }
-    } catch {}
+
   }
 
   return (
@@ -41,7 +37,6 @@ export function WeChatCopy() {
         <span>WeChat</span>
         <a
           href={businessContacts.wechatHref}
-          onClick={copy}
           title={`WeChat: ${businessContacts.wechat}`}
           className="hover:underline hover:text-emerald-400 transition-colors inline-block"
         >

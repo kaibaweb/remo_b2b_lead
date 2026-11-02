@@ -1,9 +1,7 @@
 'use client';
-import { useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useTranslation } from '@/components/i18n/LocaleProvider';
 import { Section, SectionHeadline } from '@/components/ui/Section';
-import { ShortsShowcase } from './ShortsShowcase';
 import { CompanyEvidence } from './CompanyEvidence';
 import { WeChatCopy } from './BusinessContact';
 import { businessContacts, businessEmailHref } from '@/lib/business-contact.mjs';
@@ -13,71 +11,50 @@ interface InterestProps { selected: string; onChoose: (interest: string) => void
 export function MeetingOffers({ selected, onChoose }: InterestProps) {
   const { t }=useTranslation();
   const offers=[
-    {id:'data',label:t('人形机器人训练数据采购'),hook:t('您的机器人，要学会的下一个动作。'),who:t('面向人形机器人与 Physical AI 企业的 AI、数据及研发负责人。'),offer:t('讨论动作需求、格式与使用许可，探索数据供应或共同构建的可行性。'),cta:t('讨论训练数据需求')},
-    {id:'korea',label:t('人形机器人韩国销售与 SI'),hook:t('您的机器人，下一站韩国。'),who:t('面向计划进入韩国市场的中国人形机器人制造商及海外业务负责人。'),offer:t('讨论韩国目标客户、销售渠道、现场集成与维护分工。'),cta:t('讨论韩国市场合作')},
-    {id:'distribution',label:t('REMO 产品分销与代理'),hook:t('给您的客户，一个新的购买理由。'),who:t('面向健康、健身与体育领域的分销商、渠道商及解决方案企业。'),offer:t('围绕 FINEFIT 产品，讨论目标市场、演示导入与分销条件。'),cta:t('洽谈 FINEFIT 分销')},
+    {id:'data',label:t('动作数据与技术合作'),hook:t('让人的动作，成为贵司技术的下一步。'),need:t('当前最缺哪类训练数据？'),offer:t('围绕机器人、健康与体育应用，讨论人体动作数据及体态、步态、运动分析的合作可能。')},
+    {id:'korea',label:t('韩国市场合作'),hook:t('为韩国业务，找到共同的起点。'),need:t('需要怎样的本地合作伙伴？'),offer:t('连接贵司的产品与技术和 REMO 的韩国业务经验，探索客户对接、试点验证与技术集成。')},
+    {id:'distribution',label:t('健康产品与解决方案合作'),hook:t('给您的客户，一个新的购买理由。'),need:t('寻找下一款可销售的产品'),offer:t('FINEFIT AI Mirror 提供体态测量与运动项目；SIMPro 支持体育动作分析。一起探索适合贵司客户的应用与业务合作。')},
   ];
   return <Section id="solutions" className="meeting-offers">
     <span id="opportunities" className="business-anchor" aria-hidden="true"/>
-    <SectionHeadline>{t('把技术变成贵司的机会。')}</SectionHeadline>
-    <div className="meeting-offer-grid">{offers.map((offer,index)=><article className={`space-card meeting-offer${selected===offer.id?' is-selected':''}`} key={offer.id} data-interest={offer.id}>
+    <SectionHeadline sub={t('不必先了解我们的全部技术。先看能一起做成什么生意。')}>{t('把技术变成贵司的机会。')}</SectionHeadline>
+    <div className="meeting-offer-grid">{offers.map((offer,index)=><article id={`offer-${offer.id}`} className={`space-card meeting-offer${selected===offer.id?' is-selected':''}`} key={offer.id} data-interest={offer.id}>
       <p className="meeting-offer-label"><span>0{index+1}</span>{offer.label}</p>
-      <h3>{offer.hook}</h3><p className="meeting-offer-who">{offer.who}</p><p className="meeting-offer-delivery">{offer.offer}</p>
-      <a className="space-text-link" href="#lead-form" onClick={()=>{onChoose(offer.id);trackEvent('use_case_click',{interest:offer.id});}}>{offer.cta}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
+      <p className="meeting-offer-who">{offer.need}</p><h3>{offer.hook}</h3><p className="meeting-offer-delivery">{offer.offer}</p>
+      <a className="space-text-link" href="#lead-form" onClick={()=>{onChoose(offer.id);trackEvent('use_case_click',{interest:offer.id});}}>{t('就这个方向约见')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
     </article>)}</div>
     <aside id="about-remo" className="company-identity" aria-labelledby="company-identity-title">
       <h2 id="company-identity-title">{t('认识 REMO')}</h2>
       <div><p className="company-identity-description">{t('REMO 是一家专注于人体姿态、步态与运动动作分析的 AI 技术企业。')}</p>
-        <p className="company-identity-products">{t('本页介绍的 REMO 产品包括 FINEFIT AI Mirror、FINEFIT Zone 与 FINEFIT SIMPro。')}</p>
         <a href={businessContacts.remo} className="space-text-link" target="_blank" rel="noopener noreferrer">{t('查看 REMO 官方产品与企业信息')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
       </div>
     </aside>
     <CompanyEvidence/>
-    <details className="meeting-resources"><summary>{t('产品资料与具体合作范围')}</summary>
-      <div id="why-remo"><p className="meeting-resource-heading">{t('先看产品，再谈合作。')}</p><p>FINEFIT AI Mirror · FINEFIT Zone · FINEFIT SIMPro</p><a className="space-text-link" href={businessContacts.remo} target="_blank" rel="noopener noreferrer">{t('查看 REMO 官方产品与企业信息')}<ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true"/></a>
-      <ShortsShowcase embedded/>
-      <a className="space-text-link" href="https://github.com/newtechremo/RemoAPIDocsEng/blob/6d50bf552d29d20dd07a629623873b064b6e61ba/README.md" target="_blank" rel="noopener noreferrer">{t('公开技术文档')} ↗</a>
-      <p className="meeting-scope-note">{t('数据可供范围、服务交付与代理授权按具体项目确认。')}</p></div>
-    </details>
   </Section>;
 }
 
 export function MeetingRequest({ selected, onChoose }: InterestProps) {
   const { t, path }=useTranslation();
-  const [company,setCompany]=useState('');
-  const [availability,setAvailability]=useState('');
-  const [place,setPlace]=useState('');
-  const topics=[{id:'data',label:t('人形机器人训练数据采购')},{id:'korea',label:t('人形机器人韩国销售与 SI')},{id:'distribution',label:t('REMO 产品分销与代理')}];
-  const places=[{id:'fair',label:t('展会现场')},{id:'office',label:t('拜访贵司')},{id:'other',label:t('深圳其他地点')}];
+  const topics=[{id:'data',label:t('动作数据与技术合作')},{id:'korea',label:t('韩国市场合作')},{id:'distribution',label:t('健康产品与解决方案合作')}];
   const topic=topics.find(item=>item.id===selected)?.label || '';
-  const location=places.find(item=>item.id===place)?.label || '';
-  const body=[
-    topic?`${t('合作方向')}: ${topic}`:'',
-    company.trim()?`${t('公司 / 机构')}: ${company.trim()}`:'',
-    availability.trim()?`${t('方便会面的日期与时间')}: ${availability.trim()}`:'',
-    location?`${t('会面地点')}: ${location}`:'',
-    t('会议时间与地点单独确认。'),
-  ].filter(Boolean).join('\n');
-  const email=businessEmailHref(`${t('CHTF 2026 深圳会议咨询')}${topic?` | ${topic}`:''}`,body);
+  const email=businessEmailHref(`${t('CHTF 2026 深圳会议咨询')}${topic?` | ${topic}`:''}`,`${topic?`${t('合作方向')}: ${topic}\n`:''}${t('请介绍您的公司、应用场景和希望讨论的问题。')}`);
   return <Section id="lead-form" bg="blue" className="meeting-request">
     <span id="process" className="business-anchor" aria-hidden="true"/>
-    <SectionHeadline sub={t('选择合作方向，一起明确需求、角色与下一步。')}>{t('下一笔生意，从这次深圳会面开始。')}</SectionHeadline>
-    <div className="meeting-purpose"><p>{t('我们将赴深圳参加 CHTF 2026，寻找数据、韩国市场与 FINEFIT 分销合作伙伴。')}</p><p>{t('展会现场、贵司办公室或深圳其他地点，均可协商会面。')}</p></div>
-    <div className="meeting-request-grid"><div>
-      <fieldset className="meeting-fields"><legend className="sr-only">{t('讨论主题')}</legend>
-        <label className="meeting-field-wide" htmlFor="meeting-interest">{t('合作方向')}<select id="meeting-interest" value={selected} onChange={e=>onChoose(e.target.value)}><option value="">{t('请选择合作方向')}</option>{topics.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-        <label htmlFor="meeting-company">{t('公司名称（选填）')}<input id="meeting-company" value={company} maxLength={100} autoComplete="organization" onChange={e=>setCompany(e.target.value)}/></label>
-        <label htmlFor="meeting-place">{t('会面地点')}<select id="meeting-place" value={place} onChange={e=>setPlace(e.target.value)}><option value="">—</option>{places.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-        <label className="meeting-field-wide" htmlFor="meeting-time">{t('方便会面的日期与时间')}<input id="meeting-time" value={availability} maxLength={200} placeholder={t('填写您在深圳方便的日期和时间')} onChange={e=>setAvailability(e.target.value)}/></label>
-      </fieldset>
-      <a className="space-button meeting-email-button" href={email} onClick={()=>trackEvent('chtf_meeting_click',{interest:selected||'general'})}><span>{t('通过邮件咨询会面')}</span><span className="space-button-icon"><ArrowUpRight aria-hidden="true"/></span></a>
-      <p className="meeting-composer-note">{t('将打开邮件撰写窗口；会面时间与地点以双方回复确认为准。')}</p>
-    </div><div className="meeting-direct-contact">
-      <h3>{t('先通过微信聊聊')}</h3><WeChatCopy/>
-      <a className="meeting-email-address" href={`mailto:${businessContacts.email}`} dir="ltr">{businessContacts.email}</a>
-      <a className="space-text-link business-secondary-button" href={businessContacts.linkedin} target="_blank" rel="noopener noreferrer">{t('在 LinkedIn 建立联系')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
-    </div></div>
-    <div className="meeting-fair-note" id="chtf"><p><strong>CHTF 2026</strong> · {t('2026年11月26–28日')} · {t('中国 · 深圳')}</p><p>{t('CHTF 是相识的契机，会面不限于展会现场。')}</p></div>
+    <div className="partner-event" id="chtf"><span className="space-status-dot"/><strong>CHTF 2026</strong><span>{t('2026年11月26–28日')} · Shenzhen</span></div>
+    <SectionHeadline sub={t('在 CHTF 与 REMO 见面，讨论贵司的业务与我们的技术、解决方案如何连接。')}>{t('这次深圳之行，一起谈谈下一步。')}</SectionHeadline>
+    <div className="meeting-request-grid">
+      <div className="partner-meeting-invite">
+        <p>{t('请发送公司名称和感兴趣的方向，我们将与您确认会面安排。')}</p>
+        <fieldset className="partner-topics"><legend>{t('合作方向')}</legend>{topics.map(item=><button key={item.id} type="button" aria-pressed={selected===item.id} onClick={()=>onChoose(selected===item.id?'':item.id)}>{item.label}</button>)}</fieldset>
+        <a className="space-button partner-wechat-cta" href={businessContacts.wechatHref} onClick={()=>trackEvent('chtf_meeting_click',{interest:selected||'general',channel:'wechat'})}><span>{t('通过微信探讨合作')}</span><span className="space-button-icon"><ArrowUpRight aria-hidden="true"/></span></a>
+        <p className="meeting-composer-note">{t('会议时间与地点单独确认。')}</p>
+      </div>
+      <div className="meeting-direct-contact">
+        <h3>{t('先通过微信聊聊')}</h3><WeChatCopy/>
+        <a className="meeting-email-address" href={email} onClick={()=>trackEvent('business_email_click',{interest:selected||'general'})} dir="ltr">{businessContacts.email}</a>
+        <a className="space-text-link business-secondary-button" href={businessContacts.linkedin} target="_blank" rel="noopener noreferrer">{t('在 LinkedIn 建立联系')}<ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0"/></a>
+      </div>
+    </div>
     <a className="meeting-structured-link" href={path('/contact')}>{t('发送结构化合作需求')} →</a>
   </Section>;
 }
